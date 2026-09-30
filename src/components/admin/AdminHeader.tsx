@@ -1,0 +1,102 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import {
+  Menu as MenuIcon,
+  Eye,
+  Save,
+  Coffee,
+  Camera,
+  Clock,
+  MapPin,
+  Share2,
+  Shield,
+} from 'lucide-react';
+import Logo from '@/components/Logo';
+import { AdminTab } from './adminHelpers';
+import { adminTranslations } from '@/data/adminTranslations';
+
+interface AdminHeaderProps {
+  activeTab: AdminTab;
+  isSaving: boolean;
+  onSaveAll: () => void;
+  onToggleMobileSidebar: () => void;
+  lang: 'tr' | 'en';
+}
+
+const TAB_ICONS: Record<AdminTab, any> = {
+  menu: Coffee,
+  gallery: Camera,
+  hours: Clock,
+  contact: MapPin,
+  socials: Share2,
+  security: Shield,
+};
+
+export default function AdminHeader({
+  activeTab,
+  isSaving,
+  onSaveAll,
+  onToggleMobileSidebar,
+  lang,
+}: AdminHeaderProps) {
+  const t = adminTranslations[lang];
+  const Icon = TAB_ICONS[activeTab] || Coffee;
+  const label = t.tabs[activeTab];
+
+  return (
+    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#e7e3d8] px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-2xs">
+      <div className="flex items-center gap-3">
+        {/* Mobile Toggle Button */}
+        <button
+          type="button"
+          onClick={onToggleMobileSidebar}
+          className="lg:hidden p-2 rounded-xl bg-white border border-[#ded8cb] text-[#1c381c] hover:bg-[#f5f2e9] cursor-pointer"
+        >
+          <MenuIcon className="w-5 h-5" />
+        </button>
+
+        {/* Mobile Logo Branding */}
+        <div className="lg:hidden flex items-center gap-2">
+          <Logo variant="mark" size={32} />
+          <span className="font-bold text-base text-[#1c351c] tracking-tight">botaniqa</span>
+        </div>
+
+        {/* Desktop Active Tab Title & Icon */}
+        <div className="hidden lg:flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#f2efe6] flex items-center justify-center text-[#1c381c]">
+              <Icon className="w-4 h-4 text-[#c1713a]" />
+            </div>
+            <span className="text-lg font-bold text-[#1c2a1c] tracking-tight">
+              {label}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Header Action Buttons */}
+      <div className="flex items-center gap-2.5">
+        <Link
+          href="/"
+          target="_blank"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f5f2e9] border border-[#ded8cb] text-xs font-semibold text-[#2c442c] transition-colors cursor-pointer shadow-2xs"
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>{t.header.viewSite}</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={onSaveAll}
+          disabled={isSaving}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+        >
+          <Save className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} />
+          <span>{isSaving ? t.header.saving : t.header.save}</span>
+        </button>
+      </div>
+    </header>
+  );
+}

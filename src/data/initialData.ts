@@ -1,0 +1,473 @@
+export interface CategoryData {
+  id: string;
+  labelTr: string;
+  labelEn: string;
+}
+
+export interface MenuItemData {
+  id: string;
+  category: string;
+  nameTr: string;
+  nameEn: string;
+  descTr: string;
+  descEn: string;
+  price: string;
+  tagTr?: string;
+  tagEn?: string;
+  image?: string;
+  available?: boolean;
+}
+
+export interface GalleryItemData {
+  id: string;
+  src: string;
+  altTr: string;
+  altEn: string;
+  className?: string;
+  aspectClass?: string;
+  mobileFirst?: boolean;
+}
+
+export interface WorkingHourItem {
+  id: string;
+  dayTr: string;
+  dayEn: string;
+  time: string;
+  openHour: number; // e.g. 8 for 08:00
+  closeHour: number; // e.g. 22 for 22:00
+}
+
+export interface ContactData {
+  phone: string;
+  phoneRaw: string; // e.g. +905422979262
+  email: string;
+  addressTr: string;
+  addressEn: string;
+  mapsUrl: string;
+  embedUrl: string;
+}
+
+export interface SocialsData {
+  instagramHandle?: string;
+  instagramUrl?: string;
+  whatsappNumber?: string;
+  whatsappUrl?: string;
+  tiktokUrl?: string;
+  twitterUrl?: string; // X
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  tripadvisorUrl?: string;
+  googleMapsUrl?: string;
+}
+
+export interface AdminAuthData {
+  username: string;
+  passwordHash: string; // Plain or hashed string for verification
+}
+
+export interface CafeStoreData {
+  categories?: CategoryData[];
+  menu: MenuItemData[];
+  hours: WorkingHourItem[];
+  contact: ContactData;
+  socials: SocialsData;
+  gallery: GalleryItemData[];
+  auth: AdminAuthData;
+}
+
+export const defaultCategories: CategoryData[] = [
+  { id: 'espresso', labelTr: 'Espresso Bar', labelEn: 'Espresso Bar' },
+  { id: 'mocktails', labelTr: "Özel Mocktail'ler", labelEn: 'Mocktails' },
+  { id: 'teas', labelTr: 'İmza Çaylar', labelEn: 'Signature Teas' },
+  { id: 'pastries', labelTr: 'Taze Pastalar', labelEn: 'Fresh Pastries' },
+];
+
+export const initialCafeData: CafeStoreData = {
+  auth: {
+    username: 'admin',
+    passwordHash: 'botaniqa2024',
+  },
+  categories: defaultCategories,
+  contact: {
+    phone: '+90 542 297 92 62',
+    phoneRaw: '+905422979262',
+    email: 'hello@botaniqa.com',
+    addressTr: "Karaköprü Mahallesi, Şanlıurfa, Türkiye 63200",
+    addressEn: "Karaköprü District, Şanlıurfa, Turkey 63200",
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Botaniqa+Cafe+Karakopru+Sanliurfa+Turkey',
+    embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3064!2d38.797!3d37.215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zQm90b25pcWE!5e0!3m2!1str!2str!4v1234567890',
+  },
+  socials: {
+    instagramHandle: '@botaniqa.coffee',
+    instagramUrl: 'https://instagram.com/botaniqa.coffee',
+    whatsappNumber: '+90 542 297 92 62',
+    whatsappUrl: 'https://wa.me/905422979262',
+    tiktokUrl: '',
+    twitterUrl: '',
+    facebookUrl: '',
+    youtubeUrl: '',
+    tripadvisorUrl: '',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Botaniqa+Cafe+Karakopru+Sanliurfa+Turkey',
+  },
+  gallery: [
+    {
+      id: 'g-1',
+      src: '/cafe_interior.jpg',
+      altTr: 'Asılı bitkiler ve Edison ampulleriyle botaniqa iç mekanı',
+      altEn: 'botaniqa interior with hanging plants and Edison bulbs',
+      className: 'col-span-2 row-span-2',
+      aspectClass: 'aspect-[4/3]',
+      mobileFirst: true,
+    },
+    {
+      id: 'g-2',
+      src: '/gallery_1.jpg',
+      altTr: 'Botanik kurulumla pour-over kahve',
+      altEn: 'Pour over coffee with botanical setup',
+      className: 'col-span-1 row-span-1',
+      aspectClass: 'aspect-square',
+      mobileFirst: false,
+    },
+    {
+      id: 'g-3',
+      src: '/gallery_5.jpg',
+      altTr: 'Yeşil minderler ve mum ışığıyla sıcak köşe',
+      altEn: 'Cozy nook with green cushions and candlelight',
+      className: 'col-span-1 row-span-1',
+      aspectClass: 'aspect-square',
+      mobileFirst: false,
+    },
+    {
+      id: 'g-4',
+      src: '/gallery_3.jpg',
+      altTr: 'Seramik tabakta zanaatkâr kruvasan ve macaron',
+      altEn: 'Artisan croissant and macaron on ceramic plate',
+      className: 'col-span-1 row-span-2',
+      aspectClass: 'aspect-[3/4]',
+      mobileFirst: false,
+    },
+    {
+      id: 'g-5',
+      src: '/gallery_2.jpg',
+      altTr: "Çiçek süslemeli canlı imza mocktail'ler",
+      altEn: 'Vibrant signature mocktails with floral garnishes',
+      className: 'col-span-2 row-span-1',
+      aspectClass: 'aspect-video',
+      mobileFirst: false,
+    },
+    {
+      id: 'g-6',
+      src: '/gallery_4.jpg',
+      altTr: 'Yenilebilir çiçeklerle botanik avokado tostu',
+      altEn: 'Botanical avocado toast with edible flowers',
+      className: 'col-span-1 row-span-1',
+      aspectClass: 'aspect-square',
+      mobileFirst: false,
+    },
+  ],
+  hours: [
+    {
+      id: 'h1',
+      dayTr: 'Pazartesi – Perşembe',
+      dayEn: 'Monday – Thursday',
+      time: '08:00 – 22:00',
+      openHour: 8,
+      closeHour: 22,
+    },
+    {
+      id: 'h2',
+      dayTr: 'Cuma',
+      dayEn: 'Friday',
+      time: '08:00 – 23:00',
+      openHour: 8,
+      closeHour: 23,
+    },
+    {
+      id: 'h3',
+      dayTr: 'Cumartesi',
+      dayEn: 'Saturday',
+      time: '09:00 – 23:30',
+      openHour: 9,
+      closeHour: 23.5,
+    },
+    {
+      id: 'h4',
+      dayTr: 'Pazar',
+      dayEn: 'Sunday',
+      time: '09:00 – 22:00',
+      openHour: 9,
+      closeHour: 22,
+    },
+  ],
+  menu: [
+    // ── Espresso Bar ──────────────────────────────
+    {
+      id: 'esp-1',
+      category: 'espresso',
+      nameTr: 'botaniqa İmza Latte',
+      nameEn: 'botaniqa Signature Latte',
+      descTr: 'Çift ristretto, yulaf sütü, kakule ve gülden ipuçlarıyla ev yapımı botanik şurup',
+      descEn: 'Double ristretto, oat milk, house botanical syrup with hints of cardamom and rose',
+      price: '₺120',
+      tagTr: 'Çok Satan',
+      tagEn: 'Bestseller',
+      available: true,
+    },
+    {
+      id: 'esp-2',
+      category: 'espresso',
+      nameTr: 'Orman Cappuccino',
+      nameEn: 'Forest Cappuccino',
+      descTr: 'Kadifemsi mikro-köpük, tek kökenli Etiyopya espresso, bitter kakao ile toz şeker',
+      descEn: 'Velvety micro-foam, single-origin Ethiopian espresso, dusted with dark cacao',
+      price: '₺110',
+      available: true,
+    },
+    {
+      id: 'esp-3',
+      category: 'espresso',
+      nameTr: 'Cortado Noir',
+      nameEn: 'Cortado Noir',
+      descTr: 'Eşit oranda espresso ve sıcak ipeksi buharlanmış süt, seramik bardakta servis edilir',
+      descEn: 'Equal parts espresso and warm silky steamed milk, served in a ceramic glass',
+      price: '₺95',
+      available: true,
+    },
+    {
+      id: 'esp-4',
+      category: 'espresso',
+      nameTr: 'Cold Brew Rezerv',
+      nameEn: 'Cold Brew Reserve',
+      descTr: '20 saatlik soğuk demleme, kristal buz üzerinde bir kabuk narenciyesiyle sunulur',
+      descEn: '20-hour cold steep, served over crystal ice with a citrus peel',
+      price: '₺130',
+      tagTr: 'Mevsimlik',
+      tagEn: 'Seasonal',
+      available: true,
+    },
+    {
+      id: 'esp-5',
+      category: 'espresso',
+      nameTr: 'Affogato Verde',
+      nameEn: 'Affogato Verde',
+      descTr: 'Kremalı vanilyalı dondurmanın üzerine dökülen zengin espresso, ezilmiş antep fıstığıyla',
+      descEn: 'Rich espresso poured over creamy vanilla gelato, finished with crushed pistachios',
+      price: '₺145',
+      available: true,
+    },
+    {
+      id: 'esp-6',
+      category: 'espresso',
+      nameTr: 'Flat White',
+      nameEn: 'Flat White',
+      descTr: 'Hassasiyetle dökülen ristretto, ipeksi buharlı tam yağlı süt, lale latte art',
+      descEn: 'Precision-poured ristretto with silky steamed whole milk, tulip latte art',
+      price: '₺105',
+      available: true,
+    },
+
+    // ── Mocktails & Refreshers ────────────────────
+    {
+      id: 'mock-1',
+      category: 'mocktails',
+      nameTr: 'Bahçe Elixir',
+      nameEn: 'Garden Elixir',
+      descTr: 'Salatalık, taze nane, limon, maden suyu ve üzerinde yüzen mürver çiçeği şurubu',
+      descEn: 'Cucumber, fresh mint, lemon, sparkling water, and a float of elderflower cordial',
+      price: '₺95',
+      tagTr: 'Çok Satan',
+      tagEn: 'Bestseller',
+      available: true,
+    },
+    {
+      id: 'mock-2',
+      category: 'mocktails',
+      nameTr: 'Botanik Gün Batımı',
+      nameEn: 'Botanical Sunset',
+      descTr: 'Passion fruit, mango püresi, zencefilli bira, yenilebilir viola süslemesiyle',
+      descEn: 'Passionfruit, mango purée, ginger beer, edible viola garnish',
+      price: '₺110',
+      available: true,
+    },
+    {
+      id: 'mock-3',
+      category: 'mocktails',
+      nameTr: 'Gül & Meyve Spritz',
+      nameEn: 'Rose & Berry Spritz',
+      descTr: 'Hibiskus, karışık meyveler, gül suyu, soda, kurutulmuş gül yapraklarıyla',
+      descEn: 'Hibiscus, mixed berries, rose water, soda, with dried rose petals',
+      price: '₺100',
+      tagTr: 'İmza',
+      tagEn: 'Signature',
+      available: true,
+    },
+    {
+      id: 'mock-4',
+      category: 'mocktails',
+      nameTr: 'Narenciye Ormanı',
+      nameEn: 'Citrus Forest',
+      descTr: 'Kan portakalı, taze fesleğen, agave, kırık buz üzerinde tonik su',
+      descEn: 'Blood orange, fresh basil, agave, tonic water over crushed ice',
+      price: '₺105',
+      available: true,
+    },
+    {
+      id: 'mock-5',
+      category: 'mocktails',
+      nameTr: 'Karpuz & Adaçayı',
+      nameEn: 'Watermelon Sage',
+      descTr: 'Taze sıkılmış karpuz, adaçayı şurubu, limon, maden suyu',
+      descEn: 'Fresh-pressed watermelon, sage syrup, lime, sparkling mineral water',
+      price: '₺95',
+      available: true,
+    },
+    {
+      id: 'mock-6',
+      category: 'mocktails',
+      nameTr: 'Demirhindi Soğuğu',
+      nameEn: 'Tamarind Cooler',
+      descTr: 'Urfa lezzetlerine selam — demirhindi, acı-lime tuzu, taze nane, maden suyu',
+      descEn: 'A nod to Urfa flavours — tamarind, chili-lime salt, fresh mint, sparkling water',
+      price: '₺110',
+      tagTr: 'Yerel',
+      tagEn: 'Local',
+      available: true,
+    },
+
+    // ── Teas & Botanicals ─────────────────────────
+    {
+      id: 'tea-1',
+      category: 'teas',
+      nameTr: "Botanist'in Harmanı",
+      nameEn: "Botanist's Blend",
+      descTr: 'Papatya, lavanta, limon melisası ve porsuk çiçeği — ev yapımı sakinleştirici harmanımız',
+      descEn: 'Chamomile, lavender, lemon balm, and calendula — our house calming blend',
+      price: '₺85',
+      tagTr: 'Çok Satan',
+      tagEn: 'Bestseller',
+      available: true,
+    },
+    {
+      id: 'tea-2',
+      category: 'teas',
+      nameTr: 'Baharatlı Chai Pot',
+      nameEn: 'Spiced Chai Pot',
+      descTr: 'Loose-leaf Assam, kakule, tarçın, zencefil, karanfil — seramik çaydanlıkta sunulur',
+      descEn: 'Loose-leaf Assam, cardamom, cinnamon, ginger, clove — served in a ceramic pot',
+      price: '₺90',
+      available: true,
+    },
+    {
+      id: 'tea-3',
+      category: 'teas',
+      nameTr: 'Jade Matcha Ritüel',
+      nameEn: 'Jade Matcha Ritual',
+      descTr: 'Tökezlemeye köpürtülmüş seremoni kalitesinde matcha, yulaf sütüyle birlikte',
+      descEn: 'Ceremonial grade matcha whisked to a froth, served with a side of oat milk',
+      price: '₺120',
+      tagTr: 'Premium',
+      tagEn: 'Premium',
+      available: true,
+    },
+    {
+      id: 'tea-4',
+      category: 'teas',
+      nameTr: 'Gül Bahçesi Beyaz Çay',
+      nameEn: 'Rose Garden White Tea',
+      descTr: "Fujian'dan ince beyaz çay, kurutulmuş gül yaprakları, hafif ve efsanevi",
+      descEn: 'Delicate white tea from Fujian, petals of dried rose, light and ethereal',
+      price: '₺95',
+      available: true,
+    },
+    {
+      id: 'tea-5',
+      category: 'teas',
+      nameTr: 'Urfa Ot İnfüzyonu',
+      nameEn: 'Urfa Herb Infusion',
+      descTr: 'Urfa yaylalarından yabani kekik, adaçayı ve dağ otları, sıcak servis edilir',
+      descEn: 'Wild thyme, sage, and mountain herbs from the Urfa highlands, served hot',
+      price: '₺80',
+      tagTr: 'Yerel',
+      tagEn: 'Local',
+      available: true,
+    },
+    {
+      id: 'tea-6',
+      category: 'teas',
+      nameTr: 'Gece Yarısı Oolong',
+      nameEn: 'Midnight Oolong',
+      descTr: "Kavrulmuş fındık ve bal notalarıyla koyu oolong, öğleden sonra 3'ten sonra en iyi",
+      descEn: 'Dark roasted oolong with notes of toasted nuts and honey, best after 3pm',
+      price: '₺100',
+      available: true,
+    },
+
+    // ── Fresh Pastries ────────────────────────────
+    {
+      id: 'pas-1',
+      category: 'pastries',
+      nameTr: 'Bademli Kruvasan',
+      nameEn: 'Almond Croissant',
+      descTr: 'İki kez pişirilmiş, frangipane dolgulu, pudra şekeri ve dilimlenmiş bademlerle',
+      descEn: 'Twice-baked, frangipane-filled, dusted with powdered sugar and flaked almonds',
+      price: '₺85',
+      tagTr: 'Çok Satan',
+      tagEn: 'Bestseller',
+      available: true,
+    },
+    {
+      id: 'pas-2',
+      category: 'pastries',
+      nameTr: 'Fıstıklı Düğüm',
+      nameEn: 'Pistachio Knot',
+      descTr: 'Türk antep fıstığı kreması ve bal sırıyla bükülmüş tereyağlı mayalı hamur',
+      descEn: 'Buttery yeasted dough twisted with Turkish pistachio cream and honey glaze',
+      price: '₺90',
+      tagTr: 'İmza',
+      tagEn: 'Signature',
+      available: true,
+    },
+    {
+      id: 'pas-3',
+      category: 'pastries',
+      nameTr: 'Matcha Financier',
+      nameEn: 'Matcha Financier',
+      descTr: 'Seremoni kalitesinde matcha ile narin Fransız badem keki, nemli ve aromatik',
+      descEn: 'Delicate French almond cake with ceremonial matcha, moist and aromatic',
+      price: '₺80',
+      available: true,
+    },
+    {
+      id: 'pas-4',
+      category: 'pastries',
+      nameTr: 'Çikolatalı Tahin Brownie',
+      nameEn: 'Chocolate Tahini Brownie',
+      descTr: 'Susam girdaplı yoğun ve fudge brownie, gevrek Maldon tuzu ile',
+      descEn: 'Dense, fudgy brownie with sesame swirl and flaky Maldon salt',
+      price: '₺95',
+      available: true,
+    },
+    {
+      id: 'pas-5',
+      category: 'pastries',
+      nameTr: 'Lavanta Kurabiyeleri',
+      nameEn: 'Lavender Shortbread',
+      descTr: 'Mutfak lavantası ve limon kabuğuyla zenginleştirilmiş İskoç tereyağlı kurabiye',
+      descEn: 'Scottish butter shortbread infused with culinary lavender and lemon zest',
+      price: '₺70',
+      available: true,
+    },
+    {
+      id: 'pas-6',
+      category: 'pastries',
+      nameTr: 'Mevsim Tartu',
+      nameEn: 'Seasonal Tart',
+      descTr: 'Tereyağlı pâte sablée tabanında her gün değişen meyveli ya da kremalı tart',
+      descEn: 'Daily rotating fruit or cream tart on a buttery pâte sablée base',
+      price: '₺110',
+      tagTr: 'Günün Özelliği',
+      tagEn: 'Daily Special',
+      available: true,
+    },
+  ],
+};
