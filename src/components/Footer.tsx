@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Phone, Heart, Lock } from 'lucide-react';
+import { Mail, Phone, Heart } from 'lucide-react';
 import {
   SiInstagram,
   SiWhatsapp,
@@ -11,6 +11,7 @@ import {
   SiTripadvisor,
   SiGooglemaps,
 } from 'react-icons/si';
+import Link from 'next/link';
 import { useLang } from '@/context/LanguageContext';
 import { useCafeData } from '@/context/CafeDataContext';
 import Logo from '@/components/Logo';
@@ -164,9 +165,9 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {f.links.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="text-[#6a9e6a] hover:text-[#b8d9b8] text-sm transition-colors link-underline">
+                  <Link href={link.href} className="text-[#6a9e6a] hover:text-[#b8d9b8] text-sm transition-colors link-underline">
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -214,19 +215,11 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-[#1a2e1a] py-5">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#3d5c3d]">
-          <div className="flex items-center gap-3">
-            <p>© {currentYear} botaniqa café. {f.copyright}</p>
-            <span className="opacity-40">•</span>
-            <a
-              href="/admin"
-              className="hover:text-[#8bbf8b] transition-colors inline-flex items-center gap-1 opacity-60 hover:opacity-100"
-            >
-              <Lock className="w-3 h-3" />
-              <span>Yönetici</span>
-            </a>
+          <div>
+            <p>© {currentYear} BOTANİQA CAFE. {f.copyright}</p>
           </div>
           <p className="flex items-center gap-1">
-            Made with <Heart className="w-3 h-3 text-[#c1713a] fill-current" /> {f.madeWith}
+            Made by MBN <Heart className="w-3 h-3 text-[#c1713a] fill-current" />
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import { Camera, Sparkles } from 'lucide-react';
 import { SiInstagram } from 'react-icons/si';
@@ -7,15 +8,55 @@ import { useLang } from '@/context/LanguageContext';
 import { useCafeData } from '@/context/CafeDataContext';
 import { GalleryItemData } from '@/data/initialData';
 
-const TOTAL_SLOTS = 6;
-
 const MASONRY_SLOTS = [
-  { className: 'col-span-2 row-span-2', aspectClass: 'aspect-[4/3]', mobileClass: 'col-span-2 aspect-video' },
-  { className: 'col-span-1 row-span-1', aspectClass: 'aspect-square', mobileClass: 'col-span-1 aspect-square' },
-  { className: 'col-span-1 row-span-1', aspectClass: 'aspect-square', mobileClass: 'col-span-1 aspect-square' },
-  { className: 'col-span-1 row-span-2', aspectClass: 'aspect-[3/4]', mobileClass: 'col-span-1 aspect-square' },
-  { className: 'col-span-2 row-span-1', aspectClass: 'aspect-video', mobileClass: 'col-span-1 aspect-square' },
-  { className: 'col-span-1 row-span-1', aspectClass: 'aspect-square', mobileClass: 'col-span-1 aspect-square' },
+  {
+    slot: 1,
+    labelTr: 'Büyük Vitrin (Hero)',
+    labelEn: 'Large Hero (2x2)',
+    className: 'col-span-2 row-span-2',
+    aspectClass: 'aspect-[4/3]',
+    mobileClass: 'col-span-2 aspect-video',
+  },
+  {
+    slot: 2,
+    labelTr: 'Kare (Üst Orta)',
+    labelEn: 'Square (Top Mid)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
+  {
+    slot: 3,
+    labelTr: 'Kare (Üst Sağ)',
+    labelEn: 'Square (Top Right)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
+  {
+    slot: 4,
+    labelTr: 'Kare (Sol Alt)',
+    labelEn: 'Square (Bottom Left)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
+  {
+    slot: 5,
+    labelTr: 'Kare (Alt Orta)',
+    labelEn: 'Square (Bottom Mid)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
+  {
+    slot: 6,
+    labelTr: 'Kare (Sağ Alt)',
+    labelEn: 'Square (Bottom Right)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
 ];
 
 export default function Gallery() {
@@ -25,11 +66,12 @@ export default function Gallery() {
 
   const userGallery: GalleryItemData[] = cafeData.gallery || [];
 
-  // Always construct exactly 6 slots
-  const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
-    const photo = userGallery[i];
-    const slotNumber = i + 1;
-    const layout = MASONRY_SLOTS[i];
+  // Always construct exactly 6 anchored slots by slot number
+  const slots = MASONRY_SLOTS.map((layout) => {
+    const slotNumber = layout.slot;
+    const photo = userGallery.find(
+      (item) => item.slot === slotNumber || item.id === `slot-${slotNumber}`
+    );
 
     return {
       slotNumber,
@@ -51,7 +93,7 @@ export default function Gallery() {
           <div className="lg:col-span-7 space-y-3">
             <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-[#4a7a4a] uppercase font-semibold">
               <span className="w-2 h-2 rounded-full bg-[#4a7a4a]" />
-              <span>03 / {g.label}</span>
+              <span>02 / {g.label}</span>
             </div>
             <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#1a2e1a] tracking-tight leading-[1.08] font-normal">
               {g.heading1}{' '}
@@ -68,8 +110,8 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* Desktop masonry (Always 6 slots) */}
-        <div className="hidden sm:grid grid-cols-4 grid-rows-3 gap-4 lg:gap-5">
+        {/* Desktop masonry (Always 6 fixed anchored slots) */}
+        <div className="hidden sm:grid grid-cols-3 gap-4 lg:gap-5">
           {slots.map((slot) => {
             const slotNumber = slot.slotNumber;
 
@@ -101,25 +143,28 @@ export default function Gallery() {
               );
             }
 
-            // Elegant, numberless botanical placeholder
+            // Fixed slot placeholder showing slot number clearly
             return (
               <div
                 key={`empty-slot-${slotNumber}`}
-                className={`${slot.layout.className} ${slot.layout.aspectClass} relative overflow-hidden rounded-3xl border border-[#ded5c5] bg-gradient-to-br from-[#f8f5ee] via-[#f4eee4] to-[#ede3d5]/40 flex flex-col items-center justify-center p-6 text-center shadow-xs group hover:border-[#c1713a]/50 transition-all duration-300 select-none`}
+                className={`${slot.layout.className} ${slot.layout.aspectClass} relative overflow-hidden rounded-3xl border-2 border-dashed border-[#ded5c5] bg-gradient-to-br from-[#f8f5ee] via-[#f4eee4] to-[#ede3d5]/40 flex flex-col items-center justify-center p-6 text-center shadow-xs group hover:border-[#c1713a]/50 transition-all duration-300 select-none`}
               >
                 {/* Ambient background watermark */}
                 <div className="absolute inset-0 bg-[radial-gradient(#2d4a2d_1px,transparent_1px)] opacity-10 [background-size:16px_16px] pointer-events-none" />
 
                 <div className="relative flex flex-col items-center justify-center">
-                  <div className="w-12 h-12 rounded-2xl bg-white/80 border border-[#ded8cb] shadow-xs flex items-center justify-center mb-3 group-hover:scale-105 group-hover:border-[#c1713a]/50 transition-all duration-300 text-[#4a7a4a] group-hover:text-[#c1713a]">
-                    <Camera className="w-5 h-5 stroke-[1.5]" />
+                  <div className="w-12 h-12 rounded-2xl bg-white/90 border border-[#ded8cb] shadow-xs flex items-center justify-center mb-2.5 group-hover:scale-105 group-hover:border-[#c1713a]/50 transition-all duration-300">
+                    <span className="font-serif text-lg font-bold text-[#1c381c] group-hover:text-[#c1713a] transition-colors">
+                      #{slotNumber}
+                    </span>
                   </div>
 
-                  <p className="font-serif text-sm font-medium text-[#1c2a1c] tracking-tight">
-                    botaniqa vitrini
-                  </p>
-                  <p className="text-[11px] text-[#788e78] mt-0.5 font-light tracking-wide">
-                    {lang === 'tr' ? 'Doğanın Kahveyle Buluştuğu Anlar' : 'Moments Where Nature Meets Coffee'}
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#1c381c]/10 text-[#1c381c] mb-1">
+                    Slot #{slotNumber}
+                  </span>
+
+                  <p className="font-serif text-xs font-semibold text-[#1c2a1c] tracking-tight">
+                    {lang === 'tr' ? slot.layout.labelTr : slot.layout.labelEn}
                   </p>
                 </div>
               </div>
@@ -127,7 +172,7 @@ export default function Gallery() {
           })}
         </div>
 
-        {/* Mobile 2-col grid (Always 6 slots) */}
+        {/* Mobile 2-col grid (Always 6 anchored slots) */}
         <div className="sm:hidden grid grid-cols-2 gap-3">
           {slots.map((slot) => {
             const slotNumber = slot.slotNumber;
@@ -154,18 +199,20 @@ export default function Gallery() {
               );
             }
 
-            // Mobile numberless placeholder
+            // Mobile slot number placeholder
             return (
               <div
                 key={`mobile-empty-${slotNumber}`}
-                className={`relative overflow-hidden rounded-2xl border border-[#ded5c5] bg-gradient-to-br from-[#f8f5ee] to-[#f1ece2] flex flex-col items-center justify-center p-4 text-center ${slot.layout.mobileClass}`}
+                className={`relative overflow-hidden rounded-2xl border-2 border-dashed border-[#ded5c5] bg-gradient-to-br from-[#f8f5ee] to-[#f1ece2] flex flex-col items-center justify-center p-4 text-center ${slot.layout.mobileClass}`}
               >
-                <div className="w-9 h-9 rounded-xl bg-white/80 border border-[#ded8cb] flex items-center justify-center mb-1.5 text-[#4a7a4a]">
-                  <Sparkles className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-xl bg-white/90 border border-[#ded8cb] flex items-center justify-center mb-1">
+                  <span className="font-serif text-sm font-bold text-[#1c381c]">
+                    #{slotNumber}
+                  </span>
                 </div>
-                <p className="text-[11px] font-medium text-[#2d402d]">
-                  botaniqa vitrini
-                </p>
+                <span className="text-[10px] font-mono font-bold text-[#1c381c]/70">
+                  Slot #{slotNumber}
+                </span>
               </div>
             );
           })}

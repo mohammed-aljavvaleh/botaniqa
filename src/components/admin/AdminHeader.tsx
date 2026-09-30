@@ -6,6 +6,7 @@ import {
   Menu as MenuIcon,
   Eye,
   Save,
+  Loader2,
   Coffee,
   Camera,
   Clock,
@@ -91,9 +92,13 @@ export default function AdminHeader({
           type="button"
           onClick={onSaveAll}
           disabled={isSaving}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-50 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
         >
-          <Save className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} />
+          {isSaving ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
+          ) : (
+            <Save className="w-3.5 h-3.5 text-white/90" />
+          )}
           <span>{isSaving ? t.header.saving : t.header.save}</span>
         </button>
       </div>

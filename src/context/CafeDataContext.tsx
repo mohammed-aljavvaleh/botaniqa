@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import {
   CafeStoreData,
   MenuItemData,
@@ -11,6 +11,7 @@ import {
   ContactData,
   SocialsData,
   AdminAuthData,
+  HeroVideoData,
   initialCafeData,
 } from '@/data/initialData';
 
@@ -18,14 +19,19 @@ interface CafeDataContextType {
   data: CafeStoreData;
   isLoaded: boolean;
   isSaving: boolean;
-  storageType: 'upstash_redis' | 'local_file';
+  storageType: 'upstash_redis' | 'local_file' | 'fallback_memory';
   updateCategories: (categories: CategoryData[]) => void;
   updateMenu: (menu: MenuItemData[]) => void;
   updateHours: (hours: WorkingHourItem[]) => void;
   updateContact: (contact: Partial<ContactData>) => void;
   updateSocials: (socials: Partial<SocialsData>) => void;
   updateGallery: (gallery: GalleryItemData[]) => void;
-  updateAuth: (auth: Partial<AdminAuthData>) => void;
+  updateHeroVideo: (heroVideo: Partial<HeroVideoData>) => Promise<boolean> | void;
+  updateAuth: (auth: Partial<AdminAuthData>) => Promise<boolean>;
+  deleteCategory: (catId: string) => Promise<boolean>;
+  deleteMenuItem: (itemId: string) => Promise<boolean>;
+  deleteHour: (hourId: string) => Promise<boolean>;
+  deleteGalleryItem: (photoId: string) => Promise<boolean>;
   saveToServer: (customData?: CafeStoreData) => Promise<boolean>;
   resetToDefaults: () => Promise<boolean>;
   refreshData: () => Promise<void>;
@@ -37,14 +43,19 @@ const CafeDataContext = createContext<CafeDataContextType>({
   data: initialCafeData,
   isLoaded: false,
   isSaving: false,
-  storageType: 'local_file',
+  storageType: 'upstash_redis',
   updateCategories: () => {},
   updateMenu: () => {},
   updateHours: () => {},
   updateContact: () => {},
   updateSocials: () => {},
   updateGallery: () => {},
-  updateAuth: () => {},
+  updateHeroVideo: () => {},
+  updateAuth: async () => false,
+  deleteCategory: async () => false,
+  deleteMenuItem: async () => false,
+  deleteHour: async () => false,
+  deleteGalleryItem: async () => false,
   saveToServer: async () => false,
   resetToDefaults: async () => false,
   refreshData: async () => {},
@@ -54,7 +65,7 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<CafeStoreData>(initialCafeData);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [storageType, setStorageType] = useState<'upstash_redis' | 'local_file'>('local_file');
+  const [storageType, setStorageType] = useState<'upstash_redis' | 'local_file' | 'fallback_memory'>('upstash_redis');
 
   // Load data on mount from localStorage (fast) and then server API (authoritative)
   const refreshData = useCallback(async () => {
@@ -70,6 +81,7 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
           contact: { ...prev.contact, ...(parsed.contact || {}) },
           socials: { ...prev.socials, ...(parsed.socials || {}) },
           auth: { ...prev.auth, ...(parsed.auth || {}) },
+          heroVideo: parsed.heroVideo || prev.heroVideo || initialCafeData.heroVideo,
         }));
       }
     } catch (e) {
@@ -85,6 +97,7 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
           const finalData: CafeStoreData = {
             ...json.data,
             categories: json.data.categories && json.data.categories.length > 0 ? json.data.categories : defaultCategories,
+            heroVideo: json.data.heroVideo || initialCafeData.heroVideo,
           };
           setData(finalData);
           if (json.storage) {
@@ -129,8 +142,24 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [refreshData]);
 
-  // Sync to localStorage whenever data changes
+  // Keep a mutable ref of latest data to eliminate race conditions and stale closures
+  const latestDataRef = useRef<CafeStoreData>(data);
+  latestDataRef.current = data;
+
+  // Debounce timer ref to prevent constant network requests while typing
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Sync to localStorage immediately whenever data changes (0ms UI latency)
   const updateDataLocally = (newData: CafeStoreData) => {
+    latestDataRef.current = newData;
     setData(newData);
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newData));
@@ -139,8 +168,21 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const scheduleDebouncedSave = (updatedData: CafeStoreData) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      saveToServer(updatedData);
+    }, 1500);
+  };
+
   const saveToServer = async (customData?: CafeStoreData): Promise<boolean> => {
-    const payload = customData || data;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const payload = customData || latestDataRef.current;
     setIsSaving(true);
     try {
       const res = await fetch('/api/admin/data', {
@@ -150,14 +192,9 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
       });
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
-          const savedData: CafeStoreData = {
-            ...json.data,
-            categories: json.data.categories && json.data.categories.length > 0 ? json.data.categories : defaultCategories,
-          };
-          setData(savedData);
+        if (json.success) {
           try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(savedData));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
           } catch {
             // ignore
           }
@@ -174,45 +211,114 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateCategories = (newCategories: CategoryData[]) => {
-    const updated = { ...data, categories: newCategories };
+    const updated = { ...latestDataRef.current, categories: newCategories };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
   };
 
   const updateMenu = (newMenu: MenuItemData[]) => {
-    const updated = { ...data, menu: newMenu };
+    const updated = { ...latestDataRef.current, menu: newMenu };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
   };
 
   const updateHours = (newHours: WorkingHourItem[]) => {
-    const updated = { ...data, hours: newHours };
+    const updated = { ...latestDataRef.current, hours: newHours };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
   };
 
   const updateContact = (newContact: Partial<ContactData>) => {
-    const updated = { ...data, contact: { ...data.contact, ...newContact } };
+    const updated = {
+      ...latestDataRef.current,
+      contact: { ...latestDataRef.current.contact, ...newContact },
+    };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
   };
 
   const updateSocials = (newSocials: Partial<SocialsData>) => {
-    const updated = { ...data, socials: { ...data.socials, ...newSocials } };
+    const updated = {
+      ...latestDataRef.current,
+      socials: { ...latestDataRef.current.socials, ...newSocials },
+    };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
   };
 
-  const updateAuth = (newAuth: Partial<AdminAuthData>) => {
-    const updated = { ...data, auth: { ...data.auth, ...newAuth } };
+  const updateAuth = async (newAuth: Partial<AdminAuthData>): Promise<boolean> => {
+    const updated = {
+      ...latestDataRef.current,
+      auth: {
+        ...latestDataRef.current.auth,
+        ...newAuth,
+        username: newAuth.username !== undefined ? newAuth.username.trim() : latestDataRef.current.auth?.username,
+        passwordHash: newAuth.passwordHash !== undefined ? newAuth.passwordHash.trim() : latestDataRef.current.auth?.passwordHash,
+      },
+    };
     updateDataLocally(updated);
-    saveToServer(updated);
+    return await saveToServer(updated);
   };
 
   const updateGallery = (newGallery: GalleryItemData[]) => {
-    const updated = { ...data, gallery: newGallery };
+    const updated = { ...latestDataRef.current, gallery: newGallery };
     updateDataLocally(updated);
-    saveToServer(updated);
+    scheduleDebouncedSave(updated);
+  };
+
+  const updateHeroVideo = async (newHeroVideo: Partial<HeroVideoData>): Promise<boolean> => {
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      heroVideo: {
+        ...(latestDataRef.current.heroVideo || initialCafeData.heroVideo || { enabled: true, poster: '', url: '' }),
+        ...newHeroVideo,
+      },
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
+  };
+
+  const deleteCategory = async (catId: string): Promise<boolean> => {
+    const currentCats = latestDataRef.current.categories && latestDataRef.current.categories.length > 0 ? latestDataRef.current.categories : defaultCategories;
+    const updatedCats = currentCats.filter((c) => c.id !== catId);
+    const updatedMenu = latestDataRef.current.menu.filter((m) => m.category !== catId);
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      categories: updatedCats,
+      menu: updatedMenu,
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
+  };
+
+  const deleteMenuItem = async (itemId: string): Promise<boolean> => {
+    const updatedMenu = latestDataRef.current.menu.filter((m) => m.id !== itemId);
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      menu: updatedMenu,
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
+  };
+
+  const deleteHour = async (hourId: string): Promise<boolean> => {
+    const updatedHours = latestDataRef.current.hours.filter((h) => h.id !== hourId);
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      hours: updatedHours,
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
+  };
+
+  const deleteGalleryItem = async (photoId: string): Promise<boolean> => {
+    const updatedGallery = latestDataRef.current.gallery.filter((g) => g.id !== photoId);
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      gallery: updatedGallery,
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
   };
 
   const resetToDefaults = async (): Promise<boolean> => {
@@ -253,7 +359,12 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
         updateContact,
         updateSocials,
         updateGallery,
+        updateHeroVideo,
         updateAuth,
+        deleteCategory,
+        deleteMenuItem,
+        deleteHour,
+        deleteGalleryItem,
         saveToServer,
         resetToDefaults,
         refreshData,

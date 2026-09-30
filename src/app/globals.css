@@ -173,3 +173,92 @@ section {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Mobile Finger Swipe Gesture Animations */
+@keyframes fingerSwipeGesture {
+  0% {
+    transform: translateY(-8px) scale(0.95);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-5px) scale(1);
+    opacity: 1;
+  }
+  28% {
+    /* Touch down */
+    transform: translateY(-3px) scale(1.04);
+    opacity: 1;
+  }
+  65% {
+    /* Smooth swipe stroke down */
+    transform: translateY(12px) scale(0.98);
+    opacity: 1;
+  }
+  85% {
+    /* Release and fade */
+    transform: translateY(16px) scale(0.92);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(20px) scale(0.85);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeTrail {
+  0% {
+    height: 0px;
+    opacity: 0;
+  }
+  20% {
+    height: 6px;
+    opacity: 0.8;
+  }
+  65% {
+    height: 24px;
+    opacity: 0.9;
+  }
+  85% {
+    height: 28px;
+    opacity: 0.3;
+  }
+  100% {
+    height: 32px;
+    opacity: 0;
+  }
+}
+
+.animate-finger-swipe {
+  animation: fingerSwipeGesture 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.animate-swipe-trail {
+  animation: swipeTrail 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes swipeUpFlick {
+  0% {
+    transform: translateY(6px);
+    opacity: 0.2;
+  }
+  20% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-14px);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+
+.animate-swipe-up-flick {
+  animation: swipeUpFlick 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}

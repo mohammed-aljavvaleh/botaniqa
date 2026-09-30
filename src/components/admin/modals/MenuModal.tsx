@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, Trash2, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { CategoryData, MenuItemData } from '@/data/initialData';
 import { adminTranslations } from '@/data/adminTranslations';
 
@@ -18,6 +18,16 @@ interface MenuModalProps {
   onSubmit: (e: React.FormEvent) => void;
   lang: 'tr' | 'en';
 }
+
+const TAG_OPTIONS: Array<{ tr: string; en: string }> = [
+  { tr: 'Çok Satan', en: 'Bestseller' },
+  { tr: 'İmza', en: 'Signature' },
+  { tr: 'Mevsimlik', en: 'Seasonal' },
+  { tr: 'Premium', en: 'Premium' },
+  { tr: 'Yerel', en: 'Local' },
+  { tr: 'Günün Özelliği', en: 'Daily Special' },
+  { tr: 'Yeni', en: 'New' },
+];
 
 export default function MenuModal({
   isOpen,
@@ -35,41 +45,81 @@ export default function MenuModal({
   const t = adminTranslations[lang];
 
   return (
-    <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="relative w-full max-w-xl bg-white border border-[#ded8cb] rounded-3xl p-6 sm:p-8 shadow-2xl my-8 text-[#1c2a1c]">
-        <div className="flex items-center justify-between pb-4 border-b border-[#f0ece1] mb-6">
-          <h3 className="text-2xl font-bold text-[#1c2a1c] tracking-tight">
-            {editingItem ? t.menuModal.titleEdit : t.menuModal.titleAdd}
-          </h3>
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div className="relative w-full max-w-lg bg-white border border-[#e8e4da] rounded-2xl p-5 sm:p-6 shadow-2xl my-auto text-[#1c2a1c] animate-scale-up">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3.5 border-b border-[#f0ece1] mb-4">
+          <div>
+            <h3 className="text-lg font-bold text-[#1c2a1c] tracking-tight">
+              {editingItem ? t.menuModal.titleEdit : t.menuModal.titleAdd}
+            </h3>
+            <p className="text-[11px] text-[#6b7f6b]">
+              {lang === 'tr' ? 'Ürün detaylarını aşağıdan düzenleyebilirsiniz' : 'Configure menu item details below'}
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-[#758a75] hover:text-[#1c2a1c] hover:bg-[#f2efe6] cursor-pointer"
+            className="p-1.5 rounded-lg text-[#758a75] hover:text-[#1c2a1c] hover:bg-[#f2efe6] transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {t.menuModal.category}
-            </label>
-            <select
-              value={modalForm.category}
-              onChange={(e) => setModalForm({ ...modalForm, category: e.target.value })}
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.labelTr} {cat.labelEn && cat.labelEn !== cat.labelTr ? `(${cat.labelEn})` : ''}
-                </option>
-              ))}
-            </select>
+        <form onSubmit={onSubmit} className="space-y-3.5">
+          {/* Row 1: Category & Price */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
+                {t.menuModal.category}
+              </label>
+              <select
+                value={modalForm.category}
+                onChange={(e) => setModalForm({ ...modalForm, category: e.target.value })}
+                className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#1c2a1c] outline-none cursor-pointer"
+              >
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.labelTr}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
+                {t.menuModal.price}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={modalForm.price}
+                  onChange={(e) => {
+                    const sanitized = e.target.value.replace(/[^0-9₺TLtl.,\s]/g, '');
+                    setModalForm({ ...modalForm, price: sanitized });
+                  }}
+                  onBlur={() => {
+                    let p = modalForm.price.trim();
+                    if (!p) return;
+                    if (/^\d+([.,]\d+)?$/.test(p)) {
+                      p = `₺${p}`;
+                    } else if (p.toLowerCase().endsWith('tl')) {
+                      const num = p.replace(/tl/i, '').trim();
+                      if (num) p = `₺${num}`;
+                    }
+                    setModalForm((prev) => ({ ...prev, price: p }));
+                  }}
+                  placeholder="₺120"
+                  className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#b85e28] font-bold outline-none"
+                />
+              </div>
+            </div>
           </div>
 
+          {/* Row 2: Product Name (Single field) */}
           <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
               {lang === 'tr' ? 'Ürün Adı' : 'Product Name'}
             </label>
             <input
@@ -84,80 +134,57 @@ export default function MenuModal({
                 })
               }
               placeholder={lang === 'tr' ? 'örn. botaniqa İmza Latte' : 'e.g. botaniqa Signature Latte'}
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
+              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#1c2a1c] outline-none"
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          {/* Row 3: Tag & Availability */}
+          <div className="grid grid-cols-2 gap-3 items-center">
             <div>
-              <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-                {t.menuModal.price}
-              </label>
-              <input
-                type="text"
-                required
-                value={modalForm.price}
-                onChange={(e) => {
-                  // Allow only digits, currency symbol ₺/TL, decimal separator, and spaces
-                  const sanitized = e.target.value.replace(/[^0-9₺TLtl.,\s]/g, '');
-                  setModalForm({ ...modalForm, price: sanitized });
-                }}
-                onBlur={() => {
-                  let p = modalForm.price.trim();
-                  if (!p) return;
-                  if (/^\d+([.,]\d+)?$/.test(p)) {
-                    p = `₺${p}`;
-                  } else if (p.toLowerCase().endsWith('tl')) {
-                    const num = p.replace(/tl/i, '').trim();
-                    if (num) p = `₺${num}`;
-                  }
-                  setModalForm((prev) => ({ ...prev, price: p }));
-                }}
-                placeholder="örn. ₺120"
-                className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#b85e28] font-bold outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
                 {t.menuModal.tag}
               </label>
               <select
-                value={modalForm.tagTr}
+                value={modalForm.tagTr || ''}
                 onChange={(e) => {
                   const tag = e.target.value;
-                  const enMap: Record<string, string> = {
-                    'Çok Satan': 'Bestseller',
-                    'İmza': 'Signature',
-                    'Mevsimlik': 'Seasonal',
-                    'Premium': 'Premium',
-                    'Yerel': 'Local',
-                    'Günün Özelliği': 'Daily Special',
-                    'Yeni': 'New',
-                  };
+                  const matched = TAG_OPTIONS.find((t) => t.tr === tag);
                   setModalForm({
                     ...modalForm,
                     tagTr: tag,
-                    tagEn: enMap[tag] || '',
+                    tagEn: matched ? matched.en : '',
                   });
                 }}
-                className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
+                className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#1c2a1c] outline-none cursor-pointer"
               >
                 <option value="">{t.menuModal.noTag}</option>
-                <option value="Çok Satan">Çok Satan (Bestseller)</option>
-                <option value="İmza">İmza (Signature)</option>
-                <option value="Mevsimlik">Mevsimlik (Seasonal)</option>
-                <option value="Premium">Premium</option>
-                <option value="Yerel">Yerel (Local)</option>
-                <option value="Günün Özelliği">Günün Özelliği (Daily Special)</option>
-                <option value="Yeni">Yeni (New)</option>
+                {TAG_OPTIONS.map((tag) => (
+                  <option key={tag.tr} value={tag.tr}>
+                    {tag.tr} ({tag.en})
+                  </option>
+                ))}
               </select>
+            </div>
+
+            <div className="pt-5">
+              <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={modalForm.available !== false}
+                  onChange={(e) => setModalForm({ ...modalForm, available: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#1c381c] accent-[#1c381c] cursor-pointer"
+                />
+                <span className="text-xs font-semibold text-[#3c523c]">
+                  {t.menuModal.available}
+                </span>
+              </label>
             </div>
           </div>
 
+          {/* Row 4: Description (Single field) */}
           <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {lang === 'tr' ? 'Ürün Açıklaması' : 'Product Description'}
+            <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
+              {lang === 'tr' ? 'Açıklama' : 'Description'}
             </label>
             <textarea
               rows={2}
@@ -170,50 +197,48 @@ export default function MenuModal({
                 })
               }
               placeholder={lang === 'tr' ? 'İçerik ve lezzet notları...' : 'Ingredients and flavor notes...'}
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl p-3 text-sm text-[#1c2a1c] outline-none"
+              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl p-2.5 text-xs sm:text-sm text-[#1c2a1c] outline-none resize-none"
             />
           </div>
 
+          {/* Row 5: Compact Image Upload */}
           <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
               {t.menuModal.image}
             </label>
             {modalForm.image ? (
-              <div className="flex items-center gap-4 bg-[#fbfaf8] p-3 rounded-xl border border-[#d8d2c4]">
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[#d8d2c4]">
-                  <Image
-                    src={modalForm.image}
-                    alt="Ürün önizleme"
-                    fill
-                    className="object-cover"
-                  />
+              <div className="flex items-center justify-between gap-3 bg-[#fbfaf8] p-2 rounded-xl border border-[#d8d2c4]">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[#d8d2c4] bg-stone-100">
+                    <Image
+                      src={modalForm.image}
+                      alt="Ürün"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="text-[11px] text-[#556955] truncate font-mono">
+                    {modalForm.image}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#1c2a1c] truncate font-mono">{modalForm.image}</p>
-                  <button
-                    type="button"
-                    onClick={() => setModalForm({ ...modalForm, image: '' })}
-                    className="text-xs text-red-600 hover:text-red-700 mt-1 cursor-pointer underline"
-                  >
-                    {t.menuModal.removeImage}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalForm({ ...modalForm, image: '' })}
+                  className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors cursor-pointer shrink-0"
+                  title={t.menuModal.removeImage}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex items-center gap-2">
                 <label
-                  className={`inline-flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-dashed border-[#b8c7b8] bg-[#fbfaf8] hover:bg-[#f3f0e8] text-xs sm:text-sm text-[#2c442c] cursor-pointer transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#d8d2c4] bg-[#fbfaf8] hover:bg-[#f3f0e8] text-xs font-semibold text-[#2c442c] cursor-pointer transition-colors shrink-0 ${
                     isUploadingMenuPhoto ? 'opacity-50 pointer-events-none' : ''
                   }`}
                 >
-                  <Upload
-                    className={`w-4 h-4 text-[#c1713a] ${
-                      isUploadingMenuPhoto ? 'animate-spin' : ''
-                    }`}
-                  />
-                  <span>
-                    {isUploadingMenuPhoto ? t.menuModal.uploading : t.menuModal.uploadBtn}
-                  </span>
+                  <Upload className={`w-3.5 h-3.5 text-[#c1713a] ${isUploadingMenuPhoto ? 'animate-spin' : ''}`} />
+                  <span>{isUploadingMenuPhoto ? t.menuModal.uploading : t.menuModal.uploadBtn}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -227,39 +252,24 @@ export default function MenuModal({
                   value={modalForm.image || ''}
                   onChange={(e) => setModalForm({ ...modalForm, image: e.target.value })}
                   placeholder={t.menuModal.urlPlaceholder}
-                  className="w-full bg-[#fbfaf8] border border-[#d8d2c4] rounded-xl px-3 py-2 text-xs text-[#1c2a1c] outline-none"
+                  className="flex-1 bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs text-[#1c2a1c] outline-none"
                 />
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            <input
-              type="checkbox"
-              id="itemAvailable"
-              checked={modalForm.available !== false}
-              onChange={(e) => setModalForm({ ...modalForm, available: e.target.checked })}
-              className="w-4 h-4 rounded text-[#c1713a] focus:ring-0 border-[#d8d2c4]"
-            />
-            <label
-              htmlFor="itemAvailable"
-              className="text-xs text-[#3c523c] font-medium cursor-pointer"
-            >
-              {t.menuModal.available}
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-6 border-t border-[#f0ece1]">
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-3.5 border-t border-[#f0ece1]">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl bg-[#f2efe6] hover:bg-[#e6e2d6] text-[#3c503c] text-sm font-medium transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-[#d8d2c4] hover:bg-[#f2efe6] text-[#3c503c] text-xs font-semibold transition-colors cursor-pointer"
             >
               {t.menuModal.cancel}
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-[#c1713a] hover:bg-[#a95d2c] text-white text-sm font-semibold transition-all shadow-md shadow-[#c1713a]/20 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#1c381c] hover:bg-[#254625] text-white text-xs font-semibold transition-all shadow-md shadow-[#1c381c]/20 cursor-pointer"
             >
               {editingItem ? t.menuModal.saveEdit : t.menuModal.saveAdd}
             </button>

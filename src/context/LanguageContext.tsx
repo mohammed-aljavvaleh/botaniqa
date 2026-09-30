@@ -4,23 +4,9 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Lang = 'tr' | 'en';
 
-// ── Shared shape (all strings, no literal narrowing) ──────────────
-export interface MenuItem {
-  name: string;
-  desc: string;
-  price: string;
-  tag?: string;
-}
 export interface NavDay { day: string; time: string; }
 export interface FooterLink { label: string; href: string; }
 export interface Pillar { title: string; desc: string; }
-export interface MenuCategory { id: string; label: string; }
-export interface MenuItems {
-  espresso: MenuItem[];
-  mocktails: MenuItem[];
-  teas: MenuItem[];
-  pastries: MenuItem[];
-}
 
 export interface Translations {
   lang: Lang;
@@ -40,8 +26,17 @@ export interface Translations {
   menu: {
     label: string; heading1: string; heading2: string;
     subheading: string; note: string;
-    categories: MenuCategory[];
-    items: MenuItems;
+    viewFullMenu: string;
+    viewFullMenuDesc: string;
+    digitalMenu: string;
+    allCategories: string;
+    searchPlaceholder: string;
+    noResults: string;
+    backToHome: string;
+    tableServiceNote: string;
+    filterAll: string;
+    highlights: string;
+    highlightsSub: string;
   };
   gallery: {
     label: string; heading1: string; heading2: string;
@@ -98,54 +93,25 @@ export const tr: Translations = {
   },
   menu: {
     label: 'Tekliflerimiz',
-    heading1: 'botaniqa',
+    heading1: 'BOTANIQA',
     heading2: 'Menüsü',
     subheading: 'Her ürün; niyet, mevsimsel malzeme ve lezzete derin bir saygıyla hazırlanır.',
     note: '* Fiyatlara KDV dahildir. Menü mevsime göre değişebilir.',
-    categories: [
-      { id: 'espresso', label: 'Espresso Bar' },
-      { id: 'mocktails', label: "Özel Mocktail'ler" },
-      { id: 'teas', label: 'İmza Çaylar' },
-      { id: 'pastries', label: 'Taze Pastalar' },
-    ],
-    items: {
-      espresso: [
-        { name: 'botaniqa İmza Latte', desc: 'Çift ristretto, yulaf sütü, kakule ve gülden ipuçlarıyla ev yapımı botanik şurup', price: '₺120', tag: 'Çok Satan' },
-        { name: 'Orman Cappuccino', desc: 'Kadifemsi mikro-köpük, tek kökenli Etiyopya espresso, bitter kakao ile toz şeker', price: '₺110' },
-        { name: 'Cortado Noir', desc: 'Eşit oranda espresso ve sıcak ipeksi buharlanmış süt, seramik bardakta servis edilir', price: '₺95' },
-        { name: 'Cold Brew Rezerv', desc: '20 saatlik soğuk demleme, kristal buz üzerinde bir kabuk narenciyesiyle sunulur', price: '₺130', tag: 'Mevsimlik' },
-        { name: 'Affogato Verde', desc: 'Kremalı vanilyalı dondurmanın üzerine dökülen zengin espresso, ezilmiş antep fıstığıyla', price: '₺145' },
-        { name: 'Flat White', desc: 'Hassasiyetle dökülen ristretto, ipeksi buharlı tam yağlı süt, lale latte art', price: '₺105' },
-      ],
-      mocktails: [
-        { name: 'Bahçe Elixir', desc: 'Salatalık, taze nane, limon, maden suyu ve üzerinde yüzen mürver çiçeği şurubu', price: '₺95', tag: 'Çok Satan' },
-        { name: 'Botanik Gün Batımı', desc: 'Passion fruit, mango püresi, zencefilli bira, yenilebilir viola süslemesiyle', price: '₺110' },
-        { name: 'Gül & Meyve Spritz', desc: 'Hibiskus, karışık meyveler, gül suyu, soda, kurutulmuş gül yapraklarıyla', price: '₺100', tag: 'İmza' },
-        { name: 'Narenciye Ormanı', desc: 'Kan portakalı, taze fesleğen, agave, kırık buz üzerinde tonik su', price: '₺105' },
-        { name: 'Karpuz & Adaçayı', desc: 'Taze sıkılmış karpuz, adaçayı şurubu, limon, maden suyu', price: '₺95' },
-        { name: 'Demirhindi Soğuğu', desc: 'Urfa lezzetlerine selam — demirhindi, acı-lime tuzu, taze nane, maden suyu', price: '₺110', tag: 'Yerel' },
-      ],
-      teas: [
-        { name: "Botanist'in Harmanı", desc: 'Papatya, lavanta, limon melisası ve porsuk çiçeği — ev yapımı sakinleştirici harmanımız', price: '₺85', tag: 'Çok Satan' },
-        { name: 'Baharatlı Chai Pot', desc: 'Loose-leaf Assam, kakule, tarçın, zencefil, karanfil — seramik çaydanlıkta sunulur', price: '₺90' },
-        { name: 'Jade Matcha Ritüel', desc: 'Tökezlemeye köpürtülmüş seremoni kalitesinde matcha, yulaf sütüyle birlikte', price: '₺120', tag: 'Premium' },
-        { name: 'Gül Bahçesi Beyaz Çay', desc: "Fujian'dan ince beyaz çay, kurutulmuş gül yaprakları, hafif ve efsanevi", price: '₺95' },
-        { name: 'Urfa Ot İnfüzyonu', desc: 'Urfa yaylalarından yabani kekik, adaçayı ve dağ otları, sıcak servis edilir', price: '₺80', tag: 'Yerel' },
-        { name: 'Gece Yarısı Oolong', desc: "Kavrulmuş fındık ve bal notalarıyla koyu oolong, öğleden sonra 3'ten sonra en iyi", price: '₺100' },
-      ],
-      pastries: [
-        { name: 'Bademli Kruvasan', desc: 'İki kez pişirilmiş, frangipane dolgulu, pudra şekeri ve dilimlenmiş bademlerle', price: '₺85', tag: 'Çok Satan' },
-        { name: 'Fıstıklı Düğüm', desc: 'Türk antep fıstığı kreması ve bal sırıyla bükülmüş tereyağlı mayalı hamur', price: '₺90', tag: 'İmza' },
-        { name: 'Matcha Financier', desc: 'Seremoni kalitesinde matcha ile narin Fransız badem keki, nemli ve aromatik', price: '₺80' },
-        { name: 'Çikolatalı Tahin Brownie', desc: 'Susam girdaplı yoğun ve fudge brownie, gevrek Maldon tuzu ile', price: '₺95' },
-        { name: 'Lavanta Kurabiyeleri', desc: 'Mutfak lavantası ve limon kabuğuyla zenginleştirilmiş İskoç tereyağlı kurabiye', price: '₺70' },
-        { name: 'Mevsim Tartu', desc: 'Tereyağlı pâte sablée tabanında her gün değişen meyveli ya da kremalı tart', price: '₺110', tag: 'Günün Özelliği' },
-      ],
-    },
+    viewFullMenu: 'Tüm Menüyü İncele',
+    viewFullMenuDesc: 'Eksiksiz kahve çeşitlerimiz, botanik mocktail’lerimiz ve günlük taze pastalarımız.',
+    digitalMenu: 'Dijital Menü',
+    allCategories: 'Tüm Çeşitler',
+    searchPlaceholder: 'Menüde ara... (örn: Matcha, Kruvasan, Cold Brew)',
+    noResults: 'Aramanıza uygun lezzet bulunamadı.',
+    backToHome: 'Ana Sayfaya Dön',
+    tableServiceNote: 'Tüm ürünlerimiz taze hazırlanır. Masa servisi mevcuttur.',
+    filterAll: 'Tümü',
+    highlights: 'Öne Çıkan Seçkiler',
+    highlightsSub: 'botaniqa’nın en sevilen zanaatkar kahveleri ve imza tatları.',
   },
   gallery: {
     label: 'Görsel Yolculuk',
-    heading1: "botaniqa'da",
+    heading1: "Botaniqa'da",
     heading2: 'Yaşam',
     subheading: 'Dünyamıza bir bakış — her köşe bir kompozisyon.',
     instagramCta: "@botaniqa.coffee'yı Instagram'da Takip Et",
@@ -188,10 +154,10 @@ export const tr: Translations = {
     copyright: 'Tüm hakları saklıdır.',
     madeWith: "Şanlıurfa'da",
     links: [
-      { label: 'Hakkımızda', href: '#about' },
-      { label: 'Menü', href: '#menu' },
-      { label: 'Galeri', href: '#gallery' },
-      { label: 'Konum', href: '#location' },
+      { label: 'Hakkımızda', href: '/#about' },
+      { label: 'Menü', href: '/menu' },
+      { label: 'Galeri', href: '/#gallery' },
+      { label: 'Konum', href: '/#location' },
     ],
   },
 };
@@ -232,55 +198,26 @@ export const en: Translations = {
   },
   menu: {
     label: 'Our Offerings',
-    heading1: 'the botaniqa',
+    heading1: 'BOTANIQA',
     heading2: 'Menu',
     subheading: 'Every item is made with intention, seasonal ingredients, and a deep respect for flavour.',
     note: '* Prices are inclusive of VAT. Menu subject to seasonal changes.',
-    categories: [
-      { id: 'espresso', label: 'Espresso Bar' },
-      { id: 'mocktails', label: 'Specialty Mocktails' },
-      { id: 'teas', label: 'Signature Teas' },
-      { id: 'pastries', label: 'Fresh Pastries' },
-    ],
-    items: {
-      espresso: [
-        { name: 'botaniqa Signature Latte', desc: 'Double ristretto, oat milk, house botanical syrup with hints of cardamom and rose', price: '₺120', tag: 'Bestseller' },
-        { name: 'Forest Cappuccino', desc: 'Velvety micro-foam, single-origin Ethiopian espresso, dusted with dark cacao', price: '₺110' },
-        { name: 'Cortado Noir', desc: 'Equal parts espresso and warm silky steamed milk, served in a ceramic glass', price: '₺95' },
-        { name: 'Cold Brew Reserve', desc: '20-hour cold steep, served over crystal ice with a citrus peel', price: '₺130', tag: 'Seasonal' },
-        { name: 'Affogato Verde', desc: 'Rich espresso poured over creamy vanilla gelato, finished with crushed pistachios', price: '₺145' },
-        { name: 'Flat White', desc: 'Precision-poured ristretto with silky steamed whole milk, tulip latte art', price: '₺105' },
-      ],
-      mocktails: [
-        { name: 'Garden Elixir', desc: 'Cucumber, fresh mint, lemon, sparkling water, and a float of elderflower cordial', price: '₺95', tag: 'Bestseller' },
-        { name: 'Botanical Sunset', desc: 'Passionfruit, mango purée, ginger beer, edible viola garnish', price: '₺110' },
-        { name: 'Rose & Berry Spritz', desc: 'Hibiscus, mixed berries, rose water, soda, with dried rose petals', price: '₺100', tag: 'Signature' },
-        { name: 'Citrus Forest', desc: 'Blood orange, fresh basil, agave, tonic water over crushed ice', price: '₺105' },
-        { name: 'Watermelon Sage', desc: 'Fresh-pressed watermelon, sage syrup, lime, sparkling mineral water', price: '₺95' },
-        { name: 'Tamarind Cooler', desc: 'A nod to Urfa flavours — tamarind, chili-lime salt, fresh mint, sparkling water', price: '₺110', tag: 'Local' },
-      ],
-      teas: [
-        { name: "Botanist's Blend", desc: 'Chamomile, lavender, lemon balm, and calendula — our house calming blend', price: '₺85', tag: 'Bestseller' },
-        { name: 'Spiced Chai Pot', desc: 'Loose-leaf Assam, cardamom, cinnamon, ginger, clove — served in a ceramic pot', price: '₺90' },
-        { name: 'Jade Matcha Ritual', desc: 'Ceremonial grade matcha whisked to a froth, served with a side of oat milk', price: '₺120', tag: 'Premium' },
-        { name: 'Rose Garden White Tea', desc: 'Delicate white tea from Fujian, petals of dried rose, light and ethereal', price: '₺95' },
-        { name: 'Urfa Herb Infusion', desc: 'Wild thyme, sage, and mountain herbs from the Urfa highlands, served hot', price: '₺80', tag: 'Local' },
-        { name: 'Midnight Oolong', desc: 'Dark roasted oolong with notes of toasted nuts and honey, best after 3pm', price: '₺100' },
-      ],
-      pastries: [
-        { name: 'Almond Croissant', desc: 'Twice-baked, frangipane-filled, dusted with powdered sugar and flaked almonds', price: '₺85', tag: 'Bestseller' },
-        { name: 'Pistachio Knot', desc: 'Buttery yeasted dough twisted with Turkish pistachio cream and honey glaze', price: '₺90', tag: 'Signature' },
-        { name: 'Matcha Financier', desc: 'Delicate French almond cake with ceremonial matcha, moist and aromatic', price: '₺80' },
-        { name: 'Chocolate Tahini Brownie', desc: 'Dense, fudgy brownie with sesame swirl and flaky Maldon salt', price: '₺95' },
-        { name: 'Lavender Shortbread', desc: 'Scottish butter shortbread infused with culinary lavender and lemon zest', price: '₺70' },
-        { name: 'Seasonal Tart', desc: 'Daily rotating fruit or cream tart on a buttery pâte sablée base', price: '₺110', tag: 'Daily Special' },
-      ],
-    },
+    viewFullMenu: 'Explore Full Menu',
+    viewFullMenuDesc: 'Our complete collection of specialty coffees, botanical mocktails, and fresh artisan pastries.',
+    digitalMenu: 'Digital Menu',
+    allCategories: 'All Categories',
+    searchPlaceholder: 'Search menu... (e.g., Matcha, Croissant, Cold Brew)',
+    noResults: 'No items found matching your search.',
+    backToHome: 'Back to Home',
+    tableServiceNote: 'All items are handcrafted to order. Table service available.',
+    filterAll: 'All',
+    highlights: 'Signature Highlights',
+    highlightsSub: 'A curated preview of botaniqa’s most celebrated artisan creations.',
   },
   gallery: {
     label: 'Visual Journey',
     heading1: 'Life at',
-    heading2: 'botaniqa',
+    heading2: 'Botaniqa',
     subheading: 'A glimpse into our world — where every corner is a composition.',
     instagramCta: 'Follow @botaniqa.coffee on Instagram',
     images: [
@@ -322,10 +259,10 @@ export const en: Translations = {
     copyright: 'All rights reserved.',
     madeWith: 'in Şanlıurfa',
     links: [
-      { label: 'About', href: '#about' },
-      { label: 'Menu', href: '#menu' },
-      { label: 'Gallery', href: '#gallery' },
-      { label: 'Location', href: '#location' },
+      { label: 'About', href: '/#about' },
+      { label: 'Menu', href: '/menu' },
+      { label: 'Gallery', href: '/#gallery' },
+      { label: 'Location', href: '/#location' },
     ],
   },
 };
@@ -341,8 +278,8 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType>({
   t: tr,
   lang: 'tr',
-  toggle: () => {},
-  setLang: () => {},
+  toggle: () => { },
+  setLang: () => { },
 });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {

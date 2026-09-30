@@ -33,6 +33,7 @@ import SecurityTab from '@/components/admin/tabs/SecurityTab';
 import MenuModal from '@/components/admin/modals/MenuModal';
 import WorkingHoursModal from '@/components/admin/modals/WorkingHoursModal';
 import CategoryModal from '@/components/admin/modals/CategoryModal';
+import ConfirmDeleteModal from '@/components/admin/modals/ConfirmDeleteModal';
 
 export default function AdminPage() {
   const { lang, setLang } = useLang();
@@ -47,7 +48,12 @@ export default function AdminPage() {
     updateContact,
     updateSocials,
     updateGallery,
+    updateHeroVideo,
     updateAuth,
+    deleteCategory,
+    deleteMenuItem,
+    deleteHour,
+    deleteGalleryItem,
     saveToServer,
     resetToDefaults,
   } = useCafeData();
@@ -70,7 +76,23 @@ export default function AdminPage() {
     type: 'success' | 'error';
   } | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const [isUploadingMenuPhoto, setIsUploadingMenuPhoto] = useState(false);
+
+  // ── In-App Deletion Confirmation Modal State ──────────────────────
+  const [deleteModalState, setDeleteModalState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => Promise<void>;
+    isDeleting?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: async () => {},
+    isDeleting: false,
+  });
 
   // ── Category Modal State ──────────────────────────────────────────
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -162,8 +184,8 @@ export default function AdminPage() {
     const inputUser = normalizeUser(usernameInput);
     const inputPass = cleanStr(passwordInput);
 
-    const userMatches = inputUser === targetUser || inputUser === 'admin';
-    const passMatches = inputPass === targetPass || inputPass === 'botaniqa2024';
+    const userMatches = inputUser === targetUser;
+    const passMatches = inputPass === targetPass;
 
     if (userMatches && passMatches) {
       setIsAuthenticated(true);
@@ -201,13 +223,22 @@ export default function AdminPage() {
     }
   };
 
-  const handleReset = async () => {
-    if (window.confirm(t.securityTab.resetConfirm)) {
-      const ok = await resetToDefaults();
-      if (ok) {
-        showToast(t.toasts.resetDone);
-      }
-    }
+  const handleReset = () => {
+    setDeleteModalState({
+      isOpen: true,
+      title: t.securityTab.resetTitle,
+      message: t.securityTab.resetConfirm,
+      onConfirm: async () => {
+        setDeleteModalState((prev) => ({ ...prev, isDeleting: true }));
+        const ok = await resetToDefaults();
+        setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
+        if (ok) {
+          showToast(t.toasts.resetDone);
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
+      },
+    });
   };
 
   // ── Menu Operations ───────────────────────────────────────────────
@@ -280,11 +311,21 @@ export default function AdminPage() {
   };
 
   const handleDeleteMenuItem = (id: string, name: string) => {
-    if (window.confirm(t.menuTab.confirmDeleteItem(name))) {
-      const updated = data.menu.filter((m) => m.id !== id);
-      updateMenu(updated);
-      showToast(t.toasts.itemDeleted(name));
-    }
+    setDeleteModalState({
+      isOpen: true,
+      title: lang === 'tr' ? 'Ürünü Sil' : 'Delete Menu Item',
+      message: t.menuTab.confirmDeleteItem(name),
+      onConfirm: async () => {
+        setDeleteModalState((prev) => ({ ...prev, isDeleting: true }));
+        const ok = await deleteMenuItem(id);
+        setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
+        if (ok) {
+          showToast(t.toasts.itemDeleted(name));
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
+      },
+    });
   };
 
   const handleToggleItemAvailability = (id: string) => {
@@ -396,18 +437,25 @@ export default function AdminPage() {
     const count = data.menu.filter((m) => m.category === catId).length;
     const confirmText = t.menuTab.confirmDeleteCat(label, count);
 
-    if (window.confirm(confirmText)) {
-      const updatedCategories = categories.filter((c) => c.id !== catId);
-      updateCategories(updatedCategories);
-      if (count > 0) {
-        const updatedMenu = data.menu.filter((m) => m.category !== catId);
-        updateMenu(updatedMenu);
-      }
-      if (selectedCategory === catId) {
-        setSelectedCategory(updatedCategories[0]?.id || '');
-      }
-      showToast(t.toasts.catDeleted(label));
-    }
+    setDeleteModalState({
+      isOpen: true,
+      title: lang === 'tr' ? 'Kategoriyi Sil' : 'Delete Category',
+      message: confirmText,
+      onConfirm: async () => {
+        setDeleteModalState((prev) => ({ ...prev, isDeleting: true }));
+        const ok = await deleteCategory(catId);
+        setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
+        if (ok) {
+          if (selectedCategory === catId) {
+            const remaining = categories.filter((c) => c.id !== catId);
+            setSelectedCategory(remaining[0]?.id || '');
+          }
+          showToast(t.toasts.catDeleted(label));
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
+      },
+    });
   };
 
   // ── Working Hours Operations ──────────────────────────────────────
@@ -571,29 +619,32 @@ export default function AdminPage() {
   };
 
   const handleDeleteHour = (id: string, day: string) => {
-    if (window.confirm(t.hoursTab.confirmDelete(day))) {
-      const updated = data.hours.filter((h) => h.id !== id);
-      updateHours(updated);
-      showToast(t.toasts.hoursDeleted);
-    }
+    setDeleteModalState({
+      isOpen: true,
+      title: lang === 'tr' ? 'Çalışma Saatini Sil' : 'Delete Working Hours',
+      message: t.hoursTab.confirmDelete(day),
+      onConfirm: async () => {
+        setDeleteModalState((prev) => ({ ...prev, isDeleting: true }));
+        const ok = await deleteHour(id);
+        setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
+        if (ok) {
+          showToast(t.toasts.hoursDeleted);
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
+      },
+    });
   };
 
-  // ── Gallery Operations ────────────────────────────────────────────
-  const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ── Gallery Operations (Anchored Fixed Slots 1-6) ─────────────────
+  const handleUploadPhotoForSlot = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    targetSlot: number
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if ((data.gallery || []).length >= 6) {
-      showToast(
-        lang === 'tr'
-          ? 'Galeri en fazla 6 fotoğraf içerebilir. Yeni eklemek için birini silin.'
-          : 'The gallery can have at most 6 photos. Please delete one to upload.',
-        'error'
-      );
-      e.target.value = '';
-      return;
-    }
-
+    setUploadingSlot(targetSlot);
     setIsUploadingPhoto(true);
     try {
       const processedFile = await compressImage(file);
@@ -605,14 +656,34 @@ export default function AdminPage() {
       });
       const json = await res.json();
       if (json.success && json.url) {
+        const currentGallery = [...(data.gallery || [])];
+        const existingIdx = currentGallery.findIndex(
+          (g) => g.slot === targetSlot || g.id === `slot-${targetSlot}`
+        );
+
         const newPhoto: GalleryItemData = {
-          id: `g-${Date.now()}`,
+          id: `slot-${targetSlot}`,
+          slot: targetSlot,
           src: json.url,
           altTr: 'botaniqa Deneyimi',
           altEn: 'botaniqa Experience',
         };
-        updateGallery([...(data.gallery || []), newPhoto].slice(0, 6));
-        showToast(t.toasts.photoUploaded);
+
+        let updatedGallery: GalleryItemData[];
+        if (existingIdx >= 0) {
+          updatedGallery = currentGallery.map((g, idx) =>
+            idx === existingIdx ? newPhoto : g
+          );
+        } else {
+          updatedGallery = [...currentGallery, newPhoto];
+        }
+
+        updateGallery(updatedGallery);
+        showToast(
+          lang === 'tr'
+            ? `Fotoğraf Slot #${targetSlot}'e başarıyla yüklendi!`
+            : `Photo uploaded to Slot #${targetSlot} successfully!`
+        );
       } else {
         showToast(json.error || 'Yükleme başarısız', 'error');
       }
@@ -620,21 +691,31 @@ export default function AdminPage() {
       showToast('Yükleme hatası oluştu', 'error');
     } finally {
       setIsUploadingPhoto(false);
+      setUploadingSlot(null);
       e.target.value = '';
     }
   };
 
-  const handleDeleteGalleryItem = (id: string, caption: string) => {
-    if (window.confirm(t.galleryTab.confirmDelete(caption))) {
-      const updated = (data.gallery || []).filter((g) => g.id !== id);
-      updateGallery(updated);
-      showToast(t.toasts.photoDeleted);
-    }
+  const handleDeleteGallerySlot = (id: string, caption: string, slotNum: number) => {
+    setDeleteModalState({
+      isOpen: true,
+      title: lang === 'tr' ? `Slot #${slotNum} Fotoğrafını Sil` : `Delete Slot #${slotNum} Photo`,
+      message: t.galleryTab.confirmDelete(caption || `Slot #${slotNum}`),
+      onConfirm: async () => {
+        setDeleteModalState((prev) => ({ ...prev, isDeleting: true }));
+        const updated = (data.gallery || []).filter(
+          (g) => g.id !== id && g.slot !== slotNum
+        );
+        updateGallery(updated);
+        setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
+        showToast(lang === 'tr' ? `Slot #${slotNum} temizlendi.` : `Slot #${slotNum} cleared.`);
+      },
+    });
   };
 
-  const handleUpdateGalleryCaption = (id: string, altTr: string, altEn: string) => {
+  const handleUpdateGalleryCaption = (slotNum: number, altTr: string, altEn: string) => {
     const updated = (data.gallery || []).map((g) =>
-      g.id === id ? { ...g, altTr, altEn } : g
+      g.slot === slotNum || g.id === `slot-${slotNum}` ? { ...g, altTr, altEn } : g
     );
     updateGallery(updated);
   };
@@ -727,9 +808,12 @@ export default function AdminPage() {
           {activeTab === 'gallery' && (
             <GalleryTab
               gallery={data.gallery || []}
+              heroVideo={data.heroVideo}
+              onUpdateHeroVideo={updateHeroVideo}
               isUploadingPhoto={isUploadingPhoto}
-              onUploadPhoto={handleUploadPhoto}
-              onDeletePhoto={handleDeleteGalleryItem}
+              uploadingSlot={uploadingSlot}
+              onUploadPhotoForSlot={handleUploadPhotoForSlot}
+              onDeletePhoto={handleDeleteGallerySlot}
               onUpdateCaption={handleUpdateGalleryCaption}
               lang={lang}
             />
@@ -810,6 +894,17 @@ export default function AdminPage() {
         setCategoryForm={setCategoryForm}
         onSubmit={handleSaveCategory}
         lang={lang}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={deleteModalState.isOpen}
+        title={deleteModalState.title}
+        message={deleteModalState.message}
+        confirmText={lang === 'tr' ? 'Evet, Sil' : 'Yes, Delete'}
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+        isDeleting={deleteModalState.isDeleting}
+        onConfirm={deleteModalState.onConfirm}
+        onClose={() => setDeleteModalState((prev) => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

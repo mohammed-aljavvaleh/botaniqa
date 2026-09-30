@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 import Logo from '@/components/Logo';
 
 export default function Navbar() {
   const { t, lang, toggle } = useLang();
+  const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -18,14 +21,30 @@ export default function Navbar() {
 
   const handleNav = (href: string) => {
     setIsOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    if (href.startsWith('#')) {
+      if (pathname === '/') {
+        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        router.push(`/${href}`);
+      }
+    } else {
+      router.push(href);
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      router.push('/');
+    }
   };
 
   const navLinks = [
-    { label: t.nav.about, href: '#about' },
-    { label: t.nav.menu, href: '#menu' },
-    { label: t.nav.gallery, href: '#gallery' },
-    { label: t.nav.location, href: '#location' },
+    { label: t.nav.about, href: '#about', widthClass: 'w-[102px]' },
+    { label: t.nav.gallery, href: '#gallery', widthClass: 'w-[82px]' },
+    { label: t.nav.menu, href: '/menu', widthClass: 'w-[68px]' },
+    { label: t.nav.location, href: '#location', widthClass: 'w-[86px]' },
   ];
 
   return (
@@ -37,41 +56,46 @@ export default function Navbar() {
             : 'bg-gradient-to-b from-[#0e1b0e]/70 via-[#0e1b0e]/20 to-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 h-18 sm:h-20 flex items-center justify-between">
-          {/* Logo */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group cursor-pointer flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
-            aria-label="botaniqa ana sayfa"
-          >
-            <Logo
-              variant="compact"
-              size={42}
-              className="opacity-95 group-hover:opacity-100 transition-opacity"
-            />
-          </button>
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 h-18 sm:h-20 flex items-center justify-between relative">
+          {/* Logo (Left) */}
+          <div className="shrink-0 z-20 flex items-center">
+            <button
+              onClick={handleLogoClick}
+              className="group cursor-pointer flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
+              aria-label="botaniqa ana sayfa"
+            >
+              <Logo
+                variant="compact"
+                size={42}
+                className="opacity-95 group-hover:opacity-100 transition-opacity"
+              />
+            </button>
+          </div>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-9">
-            <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#182d18]/40 border border-[#2d4d2d]/30 backdrop-blur-md">
+          {/* 1. Navbar: Perfectly centered in the page with fixed slot widths to eliminate language switch shifts */}
+          <nav className="hidden md:flex items-center pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <div className="w-[350px] flex items-center justify-between p-1 rounded-full bg-[#182d18]/50 border border-[#2d4d2d]/35 backdrop-blur-md shadow-xs">
               {navLinks.map((link) => (
                 <button
                   key={link.href}
                   onClick={() => handleNav(link.href)}
-                  className="px-4 py-1.5 rounded-full text-[#c1dec1] hover:text-white hover:bg-white/5 text-xs font-medium tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer"
+                  className={`${link.widthClass} h-7 flex items-center justify-center rounded-full text-[#c1dec1] hover:text-white hover:bg-white/8 text-xs font-medium tracking-[0.14em] uppercase transition-all duration-300 cursor-pointer text-center`}
                 >
-                  {link.label}
+                  <span className="truncate">{link.label}</span>
                 </button>
               ))}
             </div>
+          </nav>
 
-            {/* Language toggle pill */}
-            <div className="p-1 rounded-full bg-[#182d18]/50 border border-[#2d4d2d]/40 flex items-center">
+          {/* Right-side desktop controls: Separated 2. Language Toggle & 3. Visit Us Button with fixed bounding boxes */}
+          <div className="hidden md:flex items-center gap-3.5 z-20 shrink-0">
+            {/* 2. Language toggle with locked dimensions */}
+            <div className="w-[78px] h-9 p-1 rounded-full bg-[#182d18]/50 border border-[#2d4d2d]/40 flex items-center justify-between shrink-0 select-none">
               <button
                 id="lang-toggle-tr"
                 onClick={() => lang !== 'tr' && toggle()}
                 aria-label="Türkçe"
-                className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`w-[34px] h-7 rounded-full text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center ${
                   lang === 'tr'
                     ? 'bg-[#3d6e3d] text-white shadow-xs'
                     : 'text-[#8ebf8e] hover:text-white'
@@ -83,7 +107,7 @@ export default function Navbar() {
                 id="lang-toggle-en"
                 onClick={() => lang !== 'en' && toggle()}
                 aria-label="English"
-                className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`w-[34px] h-7 rounded-full text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center ${
                   lang === 'en'
                     ? 'bg-[#3d6e3d] text-white shadow-xs'
                     : 'text-[#8ebf8e] hover:text-white'
@@ -93,24 +117,25 @@ export default function Navbar() {
               </button>
             </div>
 
+            {/* 3. Visit Us button with locked dimensions so text changes never shift the toggle */}
             <button
               onClick={() => handleNav('#location')}
-              className="group relative px-6 py-2.5 rounded-full bg-gradient-to-r from-[#c1713a] to-[#d6854d] text-[#fffef9] text-xs uppercase tracking-[0.16em] font-semibold transition-all duration-300 hover:shadow-[0_8px_24px_-4px_rgba(193,113,58,0.45)] hover:-translate-y-0.5 cursor-pointer overflow-hidden"
+              className="w-[155px] h-9 group relative shrink-0 rounded-full bg-gradient-to-r from-[#c1713a] to-[#d6854d] text-[#fffef9] text-xs uppercase tracking-[0.14em] font-semibold transition-all duration-300 hover:shadow-[0_8px_24px_-4px_rgba(193,113,58,0.45)] hover:-translate-y-0.5 cursor-pointer overflow-hidden flex items-center justify-center text-center select-none"
             >
-              <span className="relative z-10">{t.nav.visitUs}</span>
+              <span className="relative z-10 block text-center truncate px-2">{t.nav.visitUs}</span>
               <div className="absolute inset-0 bg-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-          </nav>
+          </div>
 
-          {/* Mobile right-side controls */}
-          <div className="md:hidden flex items-center gap-2">
-            {/* Mobile language toggle */}
-            <div className="p-0.5 rounded-full bg-[#182d18]/60 border border-[#2d4d2d]/40 flex items-center">
+          {/* Mobile right-side controls with locked toggle box */}
+          <div className="md:hidden flex items-center gap-2 z-20">
+            {/* Mobile language toggle with locked width */}
+            <div className="w-[66px] h-7 p-0.5 rounded-full bg-[#182d18]/60 border border-[#2d4d2d]/40 flex items-center justify-between shrink-0">
               <button
                 id="lang-toggle-mobile-tr"
                 onClick={() => lang !== 'tr' && toggle()}
                 aria-label="Türkçe"
-                className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                className={`w-7 h-6 rounded-full text-[11px] font-semibold transition-colors flex items-center justify-center ${
                   lang === 'tr' ? 'bg-[#3d6e3d] text-white' : 'text-[#8ebf8e]'
                 }`}
               >
@@ -120,7 +145,7 @@ export default function Navbar() {
                 id="lang-toggle-mobile-en"
                 onClick={() => lang !== 'en' && toggle()}
                 aria-label="English"
-                className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                className={`w-7 h-6 rounded-full text-[11px] font-semibold transition-colors flex items-center justify-center ${
                   lang === 'en' ? 'bg-[#3d6e3d] text-white' : 'text-[#8ebf8e]'
                 }`}
               >

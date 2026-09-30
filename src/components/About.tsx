@@ -1,13 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { Leaf, Coffee, Sparkles, Star } from 'lucide-react';
+import { Leaf, Coffee, Sparkles, Star, Heart } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 
 const pillarIcons = [
   <Leaf key="leaf" className="w-5 h-5 text-[#4a7a4a]" />,
   <Coffee key="coffee" className="w-5 h-5 text-[#c1713a]" />,
-  <Sparkles key="sparkles" className="w-5 h-5 text-[#8b7355]" />,
+  <Heart key="sparkles" className="w-5 h-5 text-[#8b7355]" />,
 ];
 
 export default function About() {

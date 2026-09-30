@@ -16,18 +16,23 @@ export async function POST(request: Request) {
     }
 
     // Validate mime type
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'];
-    if (!validMimeTypes.includes(file.type)) {
+    const imageMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'];
+    const videoMimeTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg'];
+    const isImage = imageMimeTypes.includes(file.type);
+    const isVideo = videoMimeTypes.includes(file.type);
+
+    if (!isImage && !isVideo) {
       return NextResponse.json(
-        { success: false, error: 'Yalnızca resim dosyaları (JPG, PNG, WEBP, AVIF) yüklenebilir.' },
+        { success: false, error: 'Yalnızca resim (JPG, PNG, WEBP) veya video (MP4, WEBM, MOV) dosyaları yüklenebilir.' },
         { status: 400 }
       );
     }
 
-    // Max 10MB
-    if (file.size > 10 * 1024 * 1024) {
+    // Size limit: 15MB for images, 60MB for videos
+    const maxSize = isVideo ? 60 * 1024 * 1024 : 15 * 1024 * 1024;
+    if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: 'Dosya boyutu en fazla 10MB olabilir.' },
+        { success: false, error: `Dosya boyutu en fazla ${isVideo ? '60MB' : '15MB'} olabilir.` },
         { status: 400 }
       );
     }
@@ -36,14 +41,18 @@ export async function POST(request: Request) {
 
     // ── 1. Vercel Blob (Production) ─────────────────────────────────
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`botaniqa/${cleanFileName}`, file, {
-        access: 'public',
-      });
-      return NextResponse.json({
-        success: true,
-        url: blob.url,
-        storage: 'vercel_blob',
-      });
+      try {
+        const blob = await put(`botaniqa/${cleanFileName}`, file, {
+          access: 'public',
+        });
+        return NextResponse.json({
+          success: true,
+          url: blob.url,
+          storage: 'vercel_blob',
+        });
+      } catch (blobError) {
+        console.warn('Vercel Blob upload failed (store might be set to Private). Falling back to local storage:', blobError);
+      }
     }
 
     // ── 2. Local Fallback (Development) ─────────────────────────────

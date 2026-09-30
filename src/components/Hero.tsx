@@ -1,12 +1,21 @@
 'use client';
 
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { ArrowDown, MapPin, BookOpen, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { MapPin, BookOpen } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
+import { useCafeData } from '@/context/CafeDataContext';
 
 export default function Hero() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { data } = useCafeData();
   const h = t.hero;
+
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  const heroVideo = data.heroVideo;
+  const isVideoEnabled = heroVideo?.enabled !== false && Boolean(heroVideo?.url);
 
   const scrollToSection = (href: string) => {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
@@ -17,17 +26,34 @@ export default function Hero() {
       id="hero"
       className="relative min-h-[92vh] sm:min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-20 sm:pt-32 sm:pb-24"
     >
-      {/* Background image & authentic lighting depth */}
-      <div className="absolute inset-0">
-        <Image
-          src="/hero_coffee.jpg"
-          alt="botaniqa kafe atmosferi — botanik sarmaşıklar ve sıcak pour over"
-          fill
-          priority
-          quality={92}
-          className="object-cover object-center scale-102"
-          sizes="100vw"
-        />
+      {/* Background Media: Video or High-Res Image with Authentic Lighting Scrims */}
+      <div className="absolute inset-0 overflow-hidden bg-[#0d1a0d]">
+        {isVideoEnabled && heroVideo?.url ? (
+          <video
+            key={heroVideo.url}
+            src={heroVideo.url}
+            poster={heroVideo.poster || undefined}
+            autoPlay
+            muted
+            loop
+            playsInline
+            onLoadedData={() => setVideoLoaded(true)}
+            className={`w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${
+              videoLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ) : (
+          <Image
+            src="/hero_coffee.jpg"
+            alt="botaniqa kafe atmosferi — botanik sarmaşıklar ve sıcak pour over"
+            fill
+            priority
+            quality={92}
+            className="object-cover object-center scale-102"
+            sizes="100vw"
+          />
+        )}
+
         {/* Multilayered ambient gradient scrims for atmospheric depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0f1d0f]/85 via-[#132413]/65 to-[#0e1b0e]/90" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#102210]/40 to-[#0b160b]/80" />
@@ -44,10 +70,6 @@ export default function Hero() {
           <span className="w-1.5 h-1.5 rounded-full bg-[#e8a97a] pulse-dot" />
           <span className="text-[#c2dfc2] text-xs font-mono font-medium tracking-widest uppercase">
             {h.badge}
-          </span>
-          <span className="text-[#8bbf8b]/40">•</span>
-          <span className="text-[#a4cca4] text-xs font-mono tracking-wider">
-            Şanlıurfa
           </span>
         </div>
 
@@ -69,17 +91,17 @@ export default function Hero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-          <button
+          <Link
             id="hero-explore-menu"
-            onClick={() => scrollToSection('#menu')}
+            href="/menu"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-gradient-to-r from-[#c1713a] to-[#d6854d] hover:from-[#b0612c] hover:to-[#c6763f] text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-300 shadow-xl shadow-[#c1713a]/30 hover:shadow-2xl hover:shadow-[#c1713a]/40 hover:-translate-y-1 active:scale-98 cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-white/90" />
             <span>{h.exploreCta}</span>
-          </button>
+          </Link>
           <a
             id="hero-get-directions"
-            href="https://maps.google.com/?q=Botaniqa+Cafe+Karakopru+Sanliurfa"
+            href={data.contact?.mapsUrl || "https://maps.google.com/?q=Botaniqa+Cafe+Karakopru+Sanliurfa"}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full border border-[#8bbf8b]/40 hover:border-[#8bbf8b] text-[#e0f0e0] hover:text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-300 bg-[#162916]/40 hover:bg-[#203a20]/60 backdrop-blur-md hover:-translate-y-1 active:scale-98"
@@ -90,17 +112,39 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Editorial Scroll Indicator */}
+      {/* Editorial Scroll Indicator: Desktop (Mouse) & Mobile (Hand / Finger Swipe) */}
       <button
         onClick={() => scrollToSection('#about')}
         className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#8bbf8b]/70 hover:text-[#8bbf8b] transition-colors cursor-pointer group"
         aria-label="Aşağı kaydır"
       >
-        <span className="text-[10px] tracking-[0.25em] uppercase font-mono font-medium">
-          {h.discover}
-        </span>
-        <div className="w-5 h-8 rounded-full border border-[#8bbf8b]/40 flex items-start justify-center p-1">
-          <div className="w-1 h-2 rounded-full bg-[#e8a97a] animate-bounce" />
+        {/* Desktop View: Sleek Computer Mouse with animated scroll wheel */}
+        <div className="hidden sm:flex flex-col items-center gap-2">
+          <span className="text-[10px] tracking-[0.25em] uppercase font-mono font-medium text-[#8bbf8b]/70 group-hover:text-[#8bbf8b] transition-colors">
+            {h.discover}
+          </span>
+          <div className="w-5 h-8 rounded-full border border-[#8bbf8b]/40 flex items-start justify-center p-1 group-hover:border-[#8bbf8b]/70 transition-colors shadow-xs">
+            <div className="w-1 h-2 rounded-full bg-[#e8a97a] animate-bounce" />
+          </div>
+        </div>
+
+        {/* Mobile View: Minimalist Hand Silhouette with Upward Swipe Gesture */}
+        <div className="flex sm:hidden flex-col items-center gap-1 select-none">
+          <span className="text-[10px] tracking-[0.25em] uppercase font-mono font-medium text-[#8bbf8b]/90">
+            {h.discover}
+          </span>
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <div className="relative animate-swipe-up-flick flex flex-col items-center">
+              <Image
+                src="/swipe-gesture.png"
+                alt="Yukarı kaydır"
+                width={34}
+                height={42}
+                className="w-7.5 h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </button>
     </section>
