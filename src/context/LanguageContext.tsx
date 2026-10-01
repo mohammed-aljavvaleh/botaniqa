@@ -84,7 +84,7 @@ export const tr: Translations = {
     p2: "botaniqa'daki her menü öğesi özenerek yaratılmıştır; tek kökenli pour-over kahvelerimizden, taze otlar ve elle sıkılmış narenciyeyle katmanlanan botanik mocktail'lerimize kadar. En güzel anların, iyi kahvenin güzel bir mekânla buluştuğunda yaşandığına inanıyoruz.",
     quote: '"Her fincan, toprakla kurulan bir söyleşidir."',
     quoteAuthor: '— botaniqa Ekibi',
-    rating: "Şanlıurfa'da 5.0 Değerlendirme",
+    rating: "Google'da 4.1 · 37 Değerlendirme",
     pillars: [
       { title: 'Botanik Ruh', desc: "Sarkan sarmaşıklar, asılı eğreltiotu ve seramik saksılarla dolu duvarlar — her köşe nefes alıyor." },
       { title: 'Özel Kahve', desc: "Dünyadan özenle seçilen tek kökenli çekirdekler, niyetle demlenir ve sanatla sunulur." },
@@ -189,7 +189,7 @@ export const en: Translations = {
     p2: "Every menu item at botaniqa is a considered creation — from our single-origin pour-overs to our botanical mocktails layered with garden-fresh herbs and hand-pressed citrus. We believe the best moments happen when good coffee meets a beautiful place.",
     quote: '"Every cup is a conversation with the earth."',
     quoteAuthor: '— the botaniqa team',
-    rating: 'Rated 5.0 in Şanlıurfa',
+    rating: '4.1 on Google · 37 Reviews',
     pillars: [
       { title: 'Botanical Soul', desc: 'Walls alive with trailing ivy, hanging ferns, and terracotta pots — every corner breathes.' },
       { title: 'Specialty Coffee', desc: 'Single-origin beans sourced globally, brewed with intention and poured with artistry.' },

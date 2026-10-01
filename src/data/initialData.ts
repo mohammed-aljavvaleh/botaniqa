@@ -81,6 +81,8 @@ export interface CafeStoreData {
   gallery: GalleryItemData[];
   auth: AdminAuthData;
   heroVideo?: HeroVideoData;
+  aboutImage?: string;
+  aboutSecondaryImage?: string;
 }
 
 export const defaultCategories: CategoryData[] = [
@@ -152,6 +154,8 @@ export const defaultCategories: CategoryData[] = [
 ];
 
 export const initialCafeData: CafeStoreData = {
+  aboutImage: '/cafe_interior.jpg',
+  aboutSecondaryImage: '/gallery_1.jpg',
   auth: {
     username: 'bunyamin',
     passwordHash: 'botaniqa2024',

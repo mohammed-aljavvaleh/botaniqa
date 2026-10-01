@@ -2,14 +2,31 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Upload, Trash2, Info, CheckCircle2, RefreshCw, Video, Film, Link as LinkIcon, Play, AlertCircle } from 'lucide-react';
+import {
+  Upload,
+  Trash2,
+  Info,
+  CheckCircle2,
+  RefreshCw,
+  Video,
+  Film,
+  Link as LinkIcon,
+  Play,
+  AlertCircle,
+  BookOpen,
+  RotateCcw,
+} from 'lucide-react';
 import { GalleryItemData, HeroVideoData } from '@/data/initialData';
 import { adminTranslations } from '@/data/adminTranslations';
+import { compressImage } from '@/components/admin/adminHelpers';
 
 interface GalleryTabProps {
   gallery: GalleryItemData[];
   heroVideo?: HeroVideoData;
   onUpdateHeroVideo?: (heroVideo: Partial<HeroVideoData>) => Promise<boolean> | void;
+  aboutImage?: string;
+  aboutSecondaryImage?: string;
+  onUpdateAboutImage?: (primary: string, secondary?: string) => Promise<boolean> | void;
   isUploadingPhoto: boolean;
   uploadingSlot: number | null;
   onUploadPhotoForSlot: (e: React.ChangeEvent<HTMLInputElement>, slot: number) => void;
@@ -73,6 +90,9 @@ export default function GalleryTab({
   gallery,
   heroVideo,
   onUpdateHeroVideo,
+  aboutImage,
+  aboutSecondaryImage,
+  onUpdateAboutImage,
   isUploadingPhoto,
   uploadingSlot,
   onUploadPhotoForSlot,
@@ -85,6 +105,8 @@ export default function GalleryTab({
 
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [videoUrlInput, setVideoUrlInput] = useState(heroVideo?.url || '/hero_video.webm');
+  const [isUploadingStoryPrimary, setIsUploadingStoryPrimary] = useState(false);
+  const [isUploadingStorySecondary, setIsUploadingStorySecondary] = useState(false);
 
   useEffect(() => {
     if (heroVideo?.url) {
@@ -135,6 +157,53 @@ export default function GalleryTab({
   const handleResetVideo = async () => {
     await onUpdateHeroVideo?.({ url: '/hero_video.webm', enabled: true });
     setVideoUrlInput('/hero_video.webm');
+  };
+
+  // Story Photo Handlers
+  const handleUploadStoryImage = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'primary' | 'secondary'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (type === 'primary') setIsUploadingStoryPrimary(true);
+    else setIsUploadingStorySecondary(true);
+
+    try {
+      const processed = await compressImage(file);
+      const formData = new FormData();
+      formData.append('file', processed);
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const json = await res.json();
+      if (json.success && json.url) {
+        if (type === 'primary') {
+          await onUpdateAboutImage?.(json.url, aboutSecondaryImage || '/gallery_1.jpg');
+        } else {
+          await onUpdateAboutImage?.(aboutImage || '/cafe_interior.jpg', json.url);
+        }
+      } else {
+        alert(json.error || 'Görsel yüklenemedi.');
+      }
+    } catch (err) {
+      console.error('Story image upload error:', err);
+      alert('Görsel yüklenirken hata oluştu.');
+    } finally {
+      if (type === 'primary') setIsUploadingStoryPrimary(false);
+      else setIsUploadingStorySecondary(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleResetStoryImage = async (type: 'primary' | 'secondary') => {
+    if (type === 'primary') {
+      await onUpdateAboutImage?.('/cafe_interior.jpg', aboutSecondaryImage || '/gallery_1.jpg');
+    } else {
+      await onUpdateAboutImage?.(aboutImage || '/cafe_interior.jpg', '/gallery_1.jpg');
+    }
   };
 
   // Count active filled slots
@@ -328,6 +397,169 @@ export default function GalleryTab({
         </div>
       </div>
 
+      {/* ── 01 / HİKAYEMİZ SECTION PHOTOS ────────────────────────────── */}
+      <div className="bg-white border border-[#e8e4da] rounded-3xl p-5 sm:p-6 shadow-xs relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#f0ebe1]">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-[#c1713a] text-white flex items-center justify-center shrink-0 shadow-xs">
+              <BookOpen className="w-5 h-5 text-amber-100" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="font-serif text-lg font-bold text-[#1c2a1c]">
+                  {lang === 'tr' ? '01 / Hikayemiz Bölümü Görselleri' : '01 / Our Story Section Photos'}
+                </h3>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border bg-emerald-50 text-emerald-800 border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  {lang === 'tr' ? 'Yayında' : 'Live'}
+                </span>
+              </div>
+              <p className="text-xs text-[#6d5b45] mt-0.5">
+                {lang === 'tr'
+                  ? "Ana sayfada '01 / HİKAYEMİZ' bölümünde sergilenen büyük atmosfer ve sunum fotoğraflarını güncelleyin."
+                  : 'Update the atmosphere and detail photos displayed in the "01 / OUR STORY" section.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+          {/* 1. Main Atmosphere Photo */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#faf8f4] border border-[#e8e2d4] flex flex-col justify-between space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-serif text-sm font-bold text-[#1c2a1c]">
+                  {lang === 'tr' ? 'Ana Hikaye Fotoğrafı (Büyük)' : 'Primary Story Photo (Large)'}
+                </span>
+                <span className="text-[10px] uppercase font-semibold text-[#8a7258] bg-white border border-[#ded8cb] px-2 py-0.5 rounded-md">
+                  Dikey / 4:5
+                </span>
+              </div>
+
+              {/* Photo Preview Container */}
+              <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-black/5 border border-[#dfd8ca] shadow-inner group">
+                <Image
+                  src={aboutImage || '/cafe_interior.jpg'}
+                  alt="Hikayemiz Ana Fotoğrafı"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2 left-2.5 text-white text-[11px] font-medium drop-shadow-sm">
+                  {lang === 'tr' ? 'Mevcut Görsel' : 'Current Photo'}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-[#7d6b58] mt-2">
+                {lang === 'tr'
+                  ? 'Kafenin genel iç mekanını ve botanik atmosferini yansıtan dikey odaklı fotoğraf.'
+                  : 'Main interior ambiance photo capturing the botanical cafe atmosphere.'}
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-[#ebd8cb]/50">
+              <label
+                className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1c381c] hover:bg-[#284f28] text-white text-xs font-semibold shadow-xs cursor-pointer transition-all flex-1 ${
+                  isUploadingStoryPrimary ? 'opacity-50 pointer-events-none' : ''
+                }`}
+              >
+                <Upload className={`w-3.5 h-3.5 ${isUploadingStoryPrimary ? 'animate-spin' : ''}`} />
+                <span>
+                  {isUploadingStoryPrimary
+                    ? (lang === 'tr' ? 'Yükleniyor...' : 'Uploading...')
+                    : (lang === 'tr' ? 'Fotoğrafı Değiştir' : 'Change Photo')}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleUploadStoryImage(e, 'primary')}
+                  disabled={isUploadingStoryPrimary}
+                  className="hidden"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => handleResetStoryImage('primary')}
+                className="inline-flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl bg-white border border-[#d8d2c4] text-[#1c2a1c] hover:bg-[#f6f4ee] text-xs font-semibold transition-all cursor-pointer"
+                title={lang === 'tr' ? 'Varsayılana Dön' : 'Reset to Default'}
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#7d6b58]" />
+                <span className="hidden sm:inline">{lang === 'tr' ? 'Sıfırla' : 'Reset'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 2. Secondary Inset Photo */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#faf8f4] border border-[#e8e2d4] flex flex-col justify-between space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-serif text-sm font-bold text-[#1c2a1c]">
+                  {lang === 'tr' ? 'Küçük Detay / Sunum Fotoğrafı' : 'Detail / Inset Photo'}
+                </span>
+                <span className="text-[10px] uppercase font-semibold text-[#8a7258] bg-white border border-[#ded8cb] px-2 py-0.5 rounded-md">
+                  Köşe Vitrin
+                </span>
+              </div>
+
+              {/* Photo Preview Container */}
+              <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-black/5 border border-[#dfd8ca] shadow-inner group">
+                <Image
+                  src={aboutSecondaryImage || '/gallery_1.jpg'}
+                  alt="Hikayemiz Detay Fotoğrafı"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2 left-2.5 text-white text-[11px] font-medium drop-shadow-sm">
+                  {lang === 'tr' ? 'Mevcut Görsel' : 'Current Photo'}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-[#7d6b58] mt-2">
+                {lang === 'tr'
+                  ? 'Kahve sunumu veya lezzet detayını vurgulayan sağ alttaki küçük köşe fotoğrafı.'
+                  : 'Floating corner photo emphasizing specialty pour or pastry presentation.'}
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-[#ebd8cb]/50">
+              <label
+                className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#c1713a] hover:bg-[#a95d2c] text-white text-xs font-semibold shadow-xs cursor-pointer transition-all flex-1 ${
+                  isUploadingStorySecondary ? 'opacity-50 pointer-events-none' : ''
+                }`}
+              >
+                <Upload className={`w-3.5 h-3.5 ${isUploadingStorySecondary ? 'animate-spin' : ''}`} />
+                <span>
+                  {isUploadingStorySecondary
+                    ? (lang === 'tr' ? 'Yükleniyor...' : 'Uploading...')
+                    : (lang === 'tr' ? 'Fotoğrafı Değiştir' : 'Change Photo')}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleUploadStoryImage(e, 'secondary')}
+                  disabled={isUploadingStorySecondary}
+                  className="hidden"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => handleResetStoryImage('secondary')}
+                className="inline-flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl bg-white border border-[#d8d2c4] text-[#1c2a1c] hover:bg-[#f6f4ee] text-xs font-semibold transition-all cursor-pointer"
+                title={lang === 'tr' ? 'Varsayılana Dön' : 'Reset to Default'}
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#7d6b58]" />
+                <span className="hidden sm:inline">{lang === 'tr' ? 'Sıfırla' : 'Reset'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Info Notice for Photo Slots */}
       <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-[#f4f7f4] border border-[#d6e3d6] text-[#2c402c] text-xs leading-relaxed">
         <Info className="w-4 h-4 text-[#3d683d] shrink-0 mt-0.5" />
@@ -376,6 +608,7 @@ export default function GalleryTab({
                       src={photo.src}
                       alt={photo.altTr || `Slot ${slotNumber}`}
                       fill
+                      sizes="(max-width: 640px) 100vw, 320px"
                       className="object-cover"
                     />
                   </div>

@@ -67,6 +67,8 @@ export async function POST(request: Request) {
       ...(body.socials ? { socials: { ...currentData.socials, ...body.socials } } : {}),
       ...(body.auth ? { auth: { ...currentData.auth, ...body.auth } } : {}),
       ...(body.heroVideo ? { heroVideo: { ...currentData.heroVideo, ...body.heroVideo } } : {}),
+      ...(body.aboutImage !== undefined ? { aboutImage: body.aboutImage } : {}),
+      ...(body.aboutSecondaryImage !== undefined ? { aboutSecondaryImage: body.aboutSecondaryImage } : {}),
     };
 
     // Save directly to Upstash Redis

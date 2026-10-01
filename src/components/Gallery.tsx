@@ -82,14 +82,14 @@ export default function Gallery() {
   });
 
   return (
-    <section id="gallery" className="py-28 sm:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
+    <section id="gallery" className="py-14 sm:py-28 md:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
       {/* Background ambient lighting */}
       <div className="absolute top-1/3 -left-36 w-[500px] h-[500px] bg-[#e6efe6]/60 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-[450px] h-[450px] bg-[#faeee4]/70 rounded-full blur-[130px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Asymmetrical Editorial Header */}
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-14 sm:mb-20">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-8 sm:mb-16">
           <div className="lg:col-span-7 space-y-3">
             <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-[#4a7a4a] uppercase font-semibold">
               <span className="w-2 h-2 rounded-full bg-[#4a7a4a]" />

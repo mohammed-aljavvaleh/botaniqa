@@ -49,19 +49,19 @@ export default function Location() {
   const { isOpen, label: statusLabel } = getLiveStatus(cafeData.hours, lang);
 
   return (
-    <section id="location" className="py-28 sm:py-36 bg-[#132413] text-[#fdf8f0] relative overflow-hidden">
+    <section id="location" className="py-14 sm:py-28 md:py-36 bg-[#132413] text-[#fdf8f0] relative overflow-hidden">
       {/* Background ambient lighting */}
       <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-[#4a7a4a]/12 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 -left-32 w-[500px] h-[500px] bg-[#c1713a]/8 rounded-full blur-[130px] pointer-events-none" />
 
       {/* Atmospheric Top Hairline Divider */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-14 sm:mb-18">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-8 sm:mb-18">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-[#385a38]/60 to-transparent" />
       </div>
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Asymmetrical Editorial Header */}
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-16 sm:mb-20">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-10 sm:mb-20">
           <div className="lg:col-span-7 space-y-3">
             <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-[#a8d5a8] uppercase font-semibold">
               <span className="w-2 h-2 rounded-full bg-[#e8a97a]" />

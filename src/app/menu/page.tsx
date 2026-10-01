@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -12,6 +12,7 @@ import {
   Coffee,
   CheckCircle2,
   ChevronRight,
+  ArrowUp,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -109,6 +110,15 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Dynamic categories from admin or fallback
   const categories = useMemo(() => {
@@ -205,23 +215,23 @@ export default function MenuPage() {
       <Navbar />
 
       {/* ── Top Atmospheric Banner ─────────────────────────────────── */}
-      <section className="pt-28 sm:pt-36 pb-12 sm:pb-16 bg-gradient-to-b from-[#132313] via-[#1a331a] to-[#132313] text-[#fdf8f0] relative overflow-hidden">
+      <section className="pt-24 sm:pt-36 pb-6 sm:pb-16 bg-gradient-to-b from-[#132313] via-[#1a331a] to-[#132313] text-[#fdf8f0] relative overflow-hidden">
         {/* Subtle decorative glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#4a7a4a]/20 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute -bottom-10 right-10 w-[350px] h-[350px] bg-[#c1713a]/15 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
           {/* Breadcrumb / Back button */}
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-4 sm:mb-6 flex items-center justify-between">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-xs sm:text-sm text-[#a8d5a8] hover:text-white transition-colors group"
+              className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#a8d5a8] hover:text-white transition-colors group"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:-translate-x-1" />
               <span>{m.backToHome}</span>
             </Link>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#203d20] border border-[#335e33] text-[11px] font-mono tracking-wider text-[#d0ecd0] uppercase">
+            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#203d20] border border-[#335e33] text-[10px] sm:text-[11px] font-mono tracking-wider text-[#d0ecd0] uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#e8a97a] animate-pulse" />
               {m.digitalMenu}
             </span>
@@ -229,18 +239,18 @@ export default function MenuPage() {
 
           {/* Title & Headline */}
           <div className="max-w-3xl">
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#fdf8f0] tracking-tight font-normal leading-[1.08] mb-4">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-[#fdf8f0] tracking-tight font-normal leading-[1.08] mb-2 sm:mb-4">
               {m.heading1}{' '}
               <span className="italic font-serif text-[#e8a97a]">
                 {m.heading2}
               </span>
             </h1>
-            <p className="text-[#a4cca4] text-base sm:text-lg leading-relaxed font-light max-w-2xl mb-8">
+            <p className="text-[#a4cca4] text-xs sm:text-lg leading-relaxed font-light max-w-2xl mb-3 sm:mb-8 line-clamp-2 sm:line-clamp-none">
               {m.subheading}
             </p>
 
-            {/* Quick Highlights Info Strip */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-4 border-t border-[#2d4d2d]/60 text-xs sm:text-sm text-[#c5e4c5]">
+            {/* Quick Highlights Info Strip (hidden on tiny mobile to avoid vertical bloat) */}
+            <div className="hidden sm:flex flex-wrap items-center gap-4 sm:gap-6 pt-4 border-t border-[#2d4d2d]/60 text-xs sm:text-sm text-[#c5e4c5]">
               <div className="flex items-center gap-2">
                 <Coffee className="w-4 h-4 text-[#e8a97a]" />
                 <span>{lang === 'tr' ? 'Özel Kavrum & Taze Demleme' : 'Specialty Roast & Fresh Brews'}</span>
@@ -259,15 +269,15 @@ export default function MenuPage() {
       </section>
 
       {/* ── Sticky Category & Search Navigation Bar ────────────────── */}
-      <section className="sticky top-18 sm:top-20 z-40 bg-[#fcfbfa]/95 backdrop-blur-xl border-y border-[#e8e4da] shadow-xs transition-all">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 sm:py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3.5">
+      <section className="sticky top-16 sm:top-20 z-40 bg-[#fcfbfa]/95 backdrop-blur-xl border-y border-[#e8e4da] shadow-xs transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 sm:py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-3.5">
             {/* Horizontal Category Pill Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 sm:pb-0 scrollbar-none">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto w-full md:w-auto pb-1 sm:pb-0 scrollbar-none">
               {/* "All" Pill */}
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer ${selectedCategory === 'all'
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer ${selectedCategory === 'all'
                     ? 'bg-[#1c381c] text-white shadow-md shadow-[#1c381c]/25'
                     : 'bg-[#f2efe9] text-[#4d634d] hover:bg-[#e7e3d8] hover:text-[#1c381c]'
                   }`}
@@ -396,20 +406,20 @@ export default function MenuPage() {
           </div>
         ) : selectedCategory === 'all' && !searchQuery.trim() && !selectedTag ? (
           // Grouped by Category View
-          <div className="space-y-16 sm:space-y-20">
+          <div className="space-y-8 sm:space-y-16">
             {Array.from(itemsGroupedByCategory.entries()).map(([catId, items]) => {
               const catObj = categories.find((c) => c.id === catId);
               const catTitle = catObj?.label || catId.toUpperCase();
 
               return (
-                <section key={catId} id={`cat-${catId}`} className="scroll-mt-40">
+                <section key={catId} id={`cat-${catId}`} className="scroll-mt-36">
                   {/* Category Header with Aesthetic Botanical Line */}
-                  <div className="flex items-center justify-between mb-8 pb-3 border-b border-[#e8e4da]">
+                  <div className="flex items-center justify-between mb-3 sm:mb-8 pb-2 sm:pb-3 border-b border-[#e8e4da]">
                     <div>
-                      <h2 className="font-serif text-2xl sm:text-3xl text-[#1c2a1c] font-normal tracking-tight">
+                      <h2 className="font-serif text-xl sm:text-3xl text-[#1c2a1c] font-normal tracking-tight">
                         {catTitle}
                       </h2>
-                      <p className="text-xs sm:text-sm text-[#697f69] font-light mt-0.5">
+                      <p className="text-[11px] sm:text-sm text-[#697f69] font-light mt-0.5">
                         {items.length} {lang === 'tr' ? 'özel lezzet' : 'crafted selections'}
                       </p>
                     </div>
@@ -424,7 +434,7 @@ export default function MenuPage() {
                   </div>
 
                   {/* Grid of Menu Items */}
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
                     {items.map((item) => (
                       <MenuItemCard key={item.id} item={item} lang={lang} />
                     ))}
@@ -443,7 +453,7 @@ export default function MenuPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
               {filteredItems.map((item) => (
                 <MenuItemCard key={item.id} item={item} lang={lang} />
               ))}
@@ -452,34 +462,45 @@ export default function MenuPage() {
         )}
 
         {/* ── Table Notice & Footer Banner ────────────────────────────── */}
-        <div className="mt-20 p-8 sm:p-10 rounded-3xl bg-gradient-to-tr from-[#f3f0e6] to-[#faf8f2] border border-[#e4decb] text-center max-w-3xl mx-auto shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-white border border-[#ded8cb] mx-auto flex items-center justify-center text-[#1c381c] mb-4 shadow-xs">
-            <Coffee className="w-6 h-6" />
+        <div className="mt-10 sm:mt-20 p-5 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-[#f3f0e6] to-[#faf8f2] border border-[#e4decb] text-center max-w-3xl mx-auto shadow-xs">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white border border-[#ded8cb] mx-auto flex items-center justify-center text-[#1c381c] mb-3 sm:mb-4 shadow-xs">
+            <Coffee className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <h3 className="font-serif text-2xl text-[#1c2a1c] font-normal mb-2">
+          <h3 className="font-serif text-xl sm:text-2xl text-[#1c2a1c] font-normal mb-1.5 sm:mb-2">
             {lang === 'tr' ? 'Kişiselleştirilmiş Servis' : 'Artisan Hospitality'}
           </h3>
-          <p className="text-sm text-[#5d735d] max-w-xl mx-auto leading-relaxed mb-6 font-light">
+          <p className="text-xs sm:text-sm text-[#5d735d] max-w-xl mx-auto leading-relaxed mb-5 sm:mb-6 font-light">
             {lang === 'tr'
               ? 'Bitkisel süt seçeneklerimiz (yulaf, badem), kafeinsiz kahve veya tatlı hassasiyetleriniz için lütfen baristamıza danışınız.'
               : 'Plant-based milks (oat, almond), decaf roasts, or dietary accommodations are happily prepared upon request.'}
           </p>
-          <div className="inline-flex flex-wrap items-center justify-center gap-3">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <Link
               href="/#location"
-              className="px-6 py-2.5 rounded-full bg-[#1c381c] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#284f28] transition-all shadow-md shadow-[#1c381c]/20"
+              className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#1c381c] text-white text-[11px] sm:text-xs font-semibold uppercase tracking-wider hover:bg-[#284f28] transition-all shadow-md shadow-[#1c381c]/20"
             >
               {lang === 'tr' ? 'Bizi Ziyaret Et & Konum' : 'Visit Us & Location'}
             </Link>
             <Link
               href="/"
-              className="px-6 py-2.5 rounded-full bg-white border border-[#d8d2c4] text-[#1c2a1c] text-xs font-semibold uppercase tracking-wider hover:bg-[#f6f4ee] transition-all"
+              className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white border border-[#d8d2c4] text-[#1c2a1c] text-[11px] sm:text-xs font-semibold uppercase tracking-wider hover:bg-[#f6f4ee] transition-all"
             >
               {m.backToHome}
             </Link>
           </div>
         </div>
       </main>
+
+      {/* Floating Back to Top Button for Quick Mobile Navigation */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-5 sm:right-8 z-40 p-3 rounded-full bg-[#1c381c]/90 hover:bg-[#1c381c] text-white shadow-xl backdrop-blur-md active:scale-95 transition-all flex items-center justify-center cursor-pointer border border-[#c8aa6e]/40"
+          aria-label={lang === 'tr' ? 'Yukarı Çık' : 'Scroll to Top'}
+        >
+          <ArrowUp className="w-5 h-5 text-[#f4eedb]" />
+        </button>
+      )}
 
       <Footer />
     </div>
@@ -508,12 +529,12 @@ function MenuItemCard({
 
   return (
     <div
-      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-3 sm:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${!isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
+      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-2.5 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${!isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
         }`}
     >
       <div>
         {/* Item Image or Fallback Cafe Logo */}
-        <div className="relative w-full h-32 sm:h-44 mb-3 sm:mb-4 rounded-xl overflow-hidden bg-[#0d1c0d]">
+        <div className="relative w-full h-24 xs:h-28 sm:h-44 mb-2 sm:mb-4 rounded-xl overflow-hidden bg-[#0d1c0d]">
           {item.image && !imgError ? (
             <Image
               src={item.image}
@@ -525,18 +546,18 @@ function MenuItemCard({
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="relative w-full h-full bg-gradient-to-br from-[#132813] via-[#091509] to-[#162e16] flex flex-col items-center justify-center p-2 sm:p-3 select-none">
+            <div className="relative w-full h-full bg-gradient-to-br from-[#132813] via-[#091509] to-[#162e16] flex flex-col items-center justify-center p-2 select-none">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,170,110,0.15)_0%,transparent_70%)] pointer-events-none" />
-              <div className="relative w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-[#c8aa6e]/40 bg-[#023f04] group-hover:scale-105 transition-transform duration-500">
+              <div className="relative w-10 h-10 sm:w-20 sm:h-20 rounded-lg sm:rounded-2xl overflow-hidden shadow-lg border border-[#c8aa6e]/40 bg-[#023f04] group-hover:scale-105 transition-transform duration-500">
                 <Image
                   src="/botaniqa-logo.jpg"
                   alt="botaniqa café"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 48px, 80px"
+                  sizes="(max-width: 768px) 40px, 80px"
                 />
               </div>
-              <span className="relative mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] font-serif tracking-[0.2em] uppercase text-[#c8aa6e] font-semibold">
+              <span className="relative mt-1 text-[8px] sm:text-[10px] font-serif tracking-[0.2em] uppercase text-[#c8aa6e] font-semibold">
                 botaniqa café
               </span>
             </div>
@@ -544,14 +565,14 @@ function MenuItemCard({
         </div>
 
         {/* Top Header Row: Name & Tag */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-3 mb-1.5 sm:mb-2">
-          <h3 className="font-serif text-sm sm:text-lg md:text-xl font-medium text-[#1c2a1c] group-hover:text-[#c1713a] transition-colors leading-snug line-clamp-2">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-3 mb-1 sm:mb-2">
+          <h3 className="font-serif text-xs sm:text-lg md:text-xl font-medium text-[#1c2a1c] group-hover:text-[#c1713a] transition-colors leading-snug line-clamp-2">
             {item.name}
           </h3>
 
           {item.tag && (
             <span
-              className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border flex-shrink-0 self-start ${tagStyle
+              className={`inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border flex-shrink-0 self-start ${tagStyle
                   ? `${tagStyle.bg} ${tagStyle.text} ${tagStyle.border}`
                   : 'bg-[#f4efe6] text-[#6d5a45] border-[#e4ded0]'
                 }`}
@@ -566,22 +587,22 @@ function MenuItemCard({
 
         {/* Description */}
         {item.desc && (
-          <p className="text-[11px] sm:text-sm text-[#5f745f] leading-relaxed font-light mb-2.5 sm:mb-4 line-clamp-2 sm:line-clamp-3">
+          <p className="hidden xs:line-clamp-1 sm:line-clamp-2 text-[10px] sm:text-sm text-[#5f745f] leading-relaxed font-light mb-1.5 sm:mb-4">
             {item.desc}
           </p>
         )}
       </div>
 
       {/* Bottom Row: Price & Availability */}
-      <div className="pt-2 sm:pt-3 border-t border-[#f0ebe0] flex items-center justify-between gap-1">
+      <div className="pt-1.5 sm:pt-3 border-t border-[#f0ebe0] flex items-center justify-between gap-1">
         <div>
-          <span className="font-serif text-base sm:text-xl font-bold text-[#1c381c]">
+          <span className="font-serif text-sm sm:text-xl font-bold text-[#1c381c]">
             {item.price}
           </span>
         </div>
 
         {!isAvailable && (
-          <span className="text-[9px] sm:text-[11px] font-semibold text-stone-500 bg-stone-100 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-stone-200 shrink-0">
+          <span className="text-[8px] sm:text-[11px] font-semibold text-stone-500 bg-stone-100 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-stone-200 shrink-0">
             {lang === 'tr' ? 'Tükendi' : 'Unavailable'}
           </span>
         )}

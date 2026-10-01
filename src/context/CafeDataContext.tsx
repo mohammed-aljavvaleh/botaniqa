@@ -27,6 +27,7 @@ interface CafeDataContextType {
   updateSocials: (socials: Partial<SocialsData>) => void;
   updateGallery: (gallery: GalleryItemData[]) => void;
   updateHeroVideo: (heroVideo: Partial<HeroVideoData>) => Promise<boolean> | void;
+  updateAboutImage: (primary: string, secondary?: string) => Promise<boolean>;
   updateAuth: (auth: Partial<AdminAuthData>) => Promise<boolean>;
   deleteCategory: (catId: string) => Promise<boolean>;
   deleteMenuItem: (itemId: string) => Promise<boolean>;
@@ -51,6 +52,7 @@ const CafeDataContext = createContext<CafeDataContextType>({
   updateSocials: () => {},
   updateGallery: () => {},
   updateHeroVideo: () => {},
+  updateAboutImage: async () => false,
   updateAuth: async () => false,
   deleteCategory: async () => false,
   deleteMenuItem: async () => false,
@@ -61,9 +63,15 @@ const CafeDataContext = createContext<CafeDataContextType>({
   refreshData: async () => {},
 });
 
-export function CafeDataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<CafeStoreData>(initialCafeData);
-  const [isLoaded, setIsLoaded] = useState(false);
+export function CafeDataProvider({
+  children,
+  initialData,
+}: {
+  children: ReactNode;
+  initialData?: CafeStoreData;
+}) {
+  const [data, setData] = useState<CafeStoreData>(initialData || initialCafeData);
+  const [isLoaded, setIsLoaded] = useState(Boolean(initialData));
   const [isSaving, setIsSaving] = useState(false);
   const [storageType, setStorageType] = useState<'upstash_redis' | 'local_file' | 'fallback_memory'>('upstash_redis');
 
@@ -82,6 +90,8 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
           socials: { ...prev.socials, ...(parsed.socials || {}) },
           auth: { ...prev.auth, ...(parsed.auth || {}) },
           heroVideo: parsed.heroVideo || prev.heroVideo || initialCafeData.heroVideo,
+          aboutImage: parsed.aboutImage || prev.aboutImage || initialCafeData.aboutImage,
+          aboutSecondaryImage: parsed.aboutSecondaryImage || prev.aboutSecondaryImage || initialCafeData.aboutSecondaryImage,
         }));
       }
     } catch (e) {
@@ -98,6 +108,8 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
             ...json.data,
             categories: json.data.categories && json.data.categories.length > 0 ? json.data.categories : defaultCategories,
             heroVideo: json.data.heroVideo || initialCafeData.heroVideo,
+            aboutImage: json.data.aboutImage || initialCafeData.aboutImage,
+            aboutSecondaryImage: json.data.aboutSecondaryImage || initialCafeData.aboutSecondaryImage,
           };
           setData(finalData);
           if (json.storage) {
@@ -278,6 +290,16 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
     return await saveToServer(updated);
   };
 
+  const updateAboutImage = async (primary: string, secondary?: string): Promise<boolean> => {
+    const updated: CafeStoreData = {
+      ...latestDataRef.current,
+      aboutImage: primary,
+      aboutSecondaryImage: secondary !== undefined ? secondary : latestDataRef.current.aboutSecondaryImage,
+    };
+    updateDataLocally(updated);
+    return await saveToServer(updated);
+  };
+
   const deleteCategory = async (catId: string): Promise<boolean> => {
     const currentCats = latestDataRef.current.categories && latestDataRef.current.categories.length > 0 ? latestDataRef.current.categories : defaultCategories;
     const updatedCats = currentCats.filter((c) => c.id !== catId);
@@ -360,6 +382,7 @@ export function CafeDataProvider({ children }: { children: ReactNode }) {
         updateSocials,
         updateGallery,
         updateHeroVideo,
+        updateAboutImage,
         updateAuth,
         deleteCategory,
         deleteMenuItem,

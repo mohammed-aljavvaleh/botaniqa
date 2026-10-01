@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { CafeDataProvider } from "@/context/CafeDataContext";
+import { getCafeDataFromDb } from "@/lib/redis";
+import { CafeStoreData } from "@/data/initialData";
+
+export const dynamic = 'force-dynamic';
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -58,15 +62,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let serverData: CafeStoreData | undefined = undefined;
+  try {
+    const dbData = await getCafeDataFromDb();
+    if (dbData) {
+      serverData = dbData;
+    }
+  } catch (err) {
+    console.warn('Failed to load server cafe data in RootLayout:', err);
+  }
+
   return (
     <html lang="tr" className="scroll-smooth">
       <body className="antialiased">
-        <CafeDataProvider>
+        <CafeDataProvider initialData={serverData}>
           <LanguageProvider>{children}</LanguageProvider>
         </CafeDataProvider>
       </body>

@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { Leaf, Coffee, Star, Heart } from 'lucide-react';
+import { Leaf, Coffee, Star, Heart, ExternalLink } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
+import { useCafeData } from '@/context/CafeDataContext';
 
 const pillarIcons = [
   <Leaf key="leaf" className="w-5 h-5 text-[#4a7a4a]" />,
@@ -11,24 +12,28 @@ const pillarIcons = [
 ];
 
 export default function About() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { data: cafeData } = useCafeData();
   const a = t.about;
 
+  const primaryImage = cafeData?.aboutImage || '/cafe_interior.jpg';
+  const secondaryImage = cafeData?.aboutSecondaryImage || '/gallery_1.jpg';
+
   return (
-    <section id="about" className="py-28 sm:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
+    <section id="about" className="py-14 sm:py-28 md:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
       {/* Delicate background ambient noise & soft gradient blur */}
       <div className="absolute top-1/3 -left-48 w-96 h-96 bg-[#e2ede2]/50 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-24 right-0 w-[500px] h-[500px] bg-[#f7ebe0]/60 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Asymmetrical Editorial Header */}
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-16 sm:mb-24">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-10 sm:mb-20">
           <div className="lg:col-span-7 space-y-4">
             <div className="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-[#4a7a4a] uppercase font-semibold">
               <span className="w-2 h-2 rounded-full bg-[#4a7a4a]/80" />
               <span>01 / {a.label}</span>
             </div>
-            <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#1a2e1a] tracking-tight leading-[1.08] font-normal">
+            <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl text-[#1a2e1a] tracking-tight leading-[1.08] font-normal">
               {a.heading1}{' '}
               <span className="italic font-serif text-[#c1713a] font-normal block sm:inline">
                 {a.heading2}
@@ -37,22 +42,23 @@ export default function About() {
           </div>
 
           <div className="lg:col-span-5 lg:pb-2">
-            <p className="text-[#635544] text-base sm:text-lg leading-relaxed max-w-md font-light">
+            <p className="text-[#635544] text-sm sm:text-lg leading-relaxed max-w-md font-light">
               {a.intro}
             </p>
           </div>
         </div>
 
         {/* Asymmetric Overlapping Visual & Narrative Composition */}
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-24 sm:mb-32">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center mb-14 sm:mb-28">
           {/* Overlapping Multi-Layer Image Architecture (7 cols) */}
-          <div className="lg:col-span-7 relative">
+          <div className="lg:col-span-7 relative pb-4 sm:pb-0">
             {/* Primary architectural photo */}
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group">
               <Image
-                src="/cafe_interior.jpg"
+                src={primaryImage}
                 alt="botaniqa kafe atmosferi — asılı bitkiler ve sıcak botanik ışık"
                 fill
+                priority
                 className="object-cover object-center group-hover:scale-103 transition-transform duration-700 ease-out"
                 sizes="(max-width: 1024px) 100vw, 60vw"
               />
@@ -60,37 +66,48 @@ export default function About() {
             </div>
 
             {/* Overlapping Secondary Vignette Photo (Offset off-center) */}
-            <div className="hidden sm:block absolute -bottom-10 -right-6 lg:-right-10 w-52 md:w-60 aspect-[4/5] rounded-2xl overflow-hidden border-4 border-[#fcfaf5] shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group">
+            <div className="block absolute -bottom-6 right-2 sm:-bottom-10 sm:right-auto sm:-right-6 lg:-right-10 w-36 h-44 sm:w-52 sm:h-64 md:w-60 md:h-72 rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-[#fcfaf5] shadow-[0_12px_28px_rgba(0,0,0,0.18)] sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group">
               <Image
-                src="/gallery_1.jpg"
+                src={secondaryImage}
                 alt="Botanik kahve sunumu"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
-                sizes="240px"
+                sizes="(max-width: 640px) 150px, 240px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 text-white text-[11px] font-medium tracking-wide">
-                Tek kökenli demleme
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 text-white text-[9px] sm:text-[11px] font-medium tracking-wide pointer-events-none">
+                {lang === 'tr' ? 'Tek kökenli demleme' : 'Single origin brew'}
               </div>
             </div>
 
-            {/* Tactile Rating Seal Badge */}
-            <div className="absolute -top-5 sm:-top-6 -left-3 sm:-left-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xl border border-[#e4ded0] z-20 flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-[#264426] text-white flex flex-col items-center justify-center font-serif leading-none shadow-sm">
-                <span className="text-lg font-bold">5.0</span>
-                <span className="text-[9px] text-emerald-200 tracking-wider">PUAN</span>
+            {/* Tactile Rating Seal Badge (Links directly to Google Reviews) */}
+            <a
+              href={cafeData?.socials?.googleMapsUrl || cafeData?.contact?.mapsUrl || "https://maps.app.goo.gl/ZviCM2js2bHiWS7cA"}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={lang === 'tr' ? "Google Haritalar'da Yorumları İncele" : "View Reviews on Google Maps"}
+              className="group/badge absolute -top-5 sm:-top-6 -left-3 sm:-left-6 bg-white/95 backdrop-blur-md hover:bg-white rounded-2xl p-3 sm:p-4.5 shadow-xl border border-[#e4ded0] hover:border-[#c1713a]/50 z-20 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 hover:scale-102"
+            >
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#264426] group-hover/badge:bg-[#1c381c] text-white flex flex-col items-center justify-center font-serif leading-none shadow-sm shrink-0 transition-colors">
+                <span className="text-base sm:text-lg font-bold">4.1</span>
+                <span className="text-[8px] sm:text-[9px] text-emerald-200 tracking-wider">
+                  {lang === 'tr' ? 'PUAN' : 'SCORE'}
+                </span>
               </div>
               <div>
-                <div className="flex gap-1 text-[#c1713a]">
-                  {[...Array(5)].map((_, i) => (
+                <div className="flex items-center gap-0.5 text-[#c1713a]">
+                  {[...Array(4)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-[#c1713a]" />
                   ))}
+                  <Star className="w-3.5 h-3.5 text-[#d5cebe]" />
+                  <span className="text-xs font-bold text-[#1c381c] ml-1 font-mono">4.1</span>
                 </div>
-                <div className="text-[11px] font-semibold text-[#324832] mt-1 tracking-tight">
-                  {a.rating}
+                <div className="text-[10px] sm:text-[11px] font-semibold text-[#324832] mt-1 tracking-tight group-hover/badge:text-[#c1713a] transition-colors flex items-center gap-1">
+                  <span>{a.rating}</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover/badge:opacity-100 transition-opacity" />
                 </div>
               </div>
-            </div>
+            </a>
           </div>
 
           {/* Editorial Text Block & Pull-Quote (5 cols) */}

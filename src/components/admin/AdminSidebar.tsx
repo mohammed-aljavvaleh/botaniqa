@@ -103,11 +103,10 @@ export default function AdminSidebar({
                         setActiveTab(tab.id);
                         setMobileSidebarOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                        isActive
-                          ? 'bg-[#1c381c] text-white shadow-sm'
-                          : 'text-[#4e624e] hover:text-[#1c381c] hover:bg-[#f4f1e8]'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${isActive
+                        ? 'bg-[#1c381c] text-white shadow-sm'
+                        : 'text-[#4e624e] hover:text-[#1c381c] hover:bg-[#f4f1e8]'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <Icon className={`w-4 h-4 ${isActive ? 'text-[#e8c68a]' : 'opacity-70'}`} />
@@ -115,11 +114,10 @@ export default function AdminSidebar({
                       </div>
                       {typeof tab.count === 'number' && (
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            isActive
-                              ? 'bg-white/20 text-white'
-                              : 'bg-[#ede9df] text-[#5e735e]'
-                          }`}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-[#ede9df] text-[#5e735e]'
+                            }`}
                         >
                           {tab.count}
                         </span>
@@ -137,22 +135,20 @@ export default function AdminSidebar({
                   <button
                     type="button"
                     onClick={() => setLang('tr')}
-                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                      lang === 'tr'
-                        ? 'bg-[#1c381c] text-white shadow-xs'
-                        : 'text-[#607360] hover:text-[#1c381c]'
-                    }`}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${lang === 'tr'
+                      ? 'bg-[#1c381c] text-white shadow-xs'
+                      : 'text-[#607360] hover:text-[#1c381c]'
+                      }`}
                   >
                     TR
                   </button>
                   <button
                     type="button"
                     onClick={() => setLang('en')}
-                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                      lang === 'en'
-                        ? 'bg-[#1c381c] text-white shadow-xs'
-                        : 'text-[#607360] hover:text-[#1c381c]'
-                    }`}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${lang === 'en'
+                      ? 'bg-[#1c381c] text-white shadow-xs'
+                      : 'text-[#607360] hover:text-[#1c381c]'
+                      }`}
                   >
                     EN
                   </button>
@@ -199,7 +195,7 @@ export default function AdminSidebar({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl text-[#1c351c] tracking-tight group-hover:text-[#c1713a] transition-colors truncate">
-                  botaniqa
+                  BOTANIQA
                 </span>
                 <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#edf3ed] text-[#1c381c] border border-[#d2e0d2]">
                   {t.header.adminBadge}
@@ -224,11 +220,10 @@ export default function AdminSidebar({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#1c381c] text-white shadow-sm'
-                      : 'text-[#4e624e] hover:text-[#1c381c] hover:bg-[#f4f1e8]'
-                  }`}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${isActive
+                    ? 'bg-[#1c381c] text-white shadow-sm'
+                    : 'text-[#4e624e] hover:text-[#1c381c] hover:bg-[#f4f1e8]'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className={`w-4 h-4 ${isActive ? 'text-[#e8c68a]' : 'opacity-70'}`} />
@@ -236,11 +231,10 @@ export default function AdminSidebar({
                   </div>
                   {typeof tab.count === 'number' && (
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        isActive
-                          ? 'bg-white/20 text-white'
-                          : 'bg-[#ede9df] text-[#5e735e]'
-                      }`}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#ede9df] text-[#5e735e]'
+                        }`}
                     >
                       {tab.count}
                     </span>
@@ -259,11 +253,10 @@ export default function AdminSidebar({
               <button
                 type="button"
                 onClick={() => setLang('tr')}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                  lang === 'tr'
-                    ? 'bg-[#1c381c] text-white shadow-xs'
-                    : 'text-[#607360] hover:text-[#1c381c]'
-                }`}
+                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${lang === 'tr'
+                  ? 'bg-[#1c381c] text-white shadow-xs'
+                  : 'text-[#607360] hover:text-[#1c381c]'
+                  }`}
                 title="Türkçe"
               >
                 TR
@@ -271,11 +264,10 @@ export default function AdminSidebar({
               <button
                 type="button"
                 onClick={() => setLang('en')}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                  lang === 'en'
-                    ? 'bg-[#1c381c] text-white shadow-xs'
-                    : 'text-[#607360] hover:text-[#1c381c]'
-                }`}
+                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${lang === 'en'
+                  ? 'bg-[#1c381c] text-white shadow-xs'
+                  : 'text-[#607360] hover:text-[#1c381c]'
+                  }`}
                 title="English"
               >
                 EN

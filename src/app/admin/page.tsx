@@ -49,6 +49,7 @@ export default function AdminPage() {
     updateSocials,
     updateGallery,
     updateHeroVideo,
+    updateAboutImage,
     updateAuth,
     deleteCategory,
     deleteMenuItem,
@@ -836,6 +837,9 @@ export default function AdminPage() {
               gallery={data.gallery || []}
               heroVideo={data.heroVideo}
               onUpdateHeroVideo={updateHeroVideo}
+              aboutImage={data.aboutImage}
+              aboutSecondaryImage={data.aboutSecondaryImage}
+              onUpdateAboutImage={updateAboutImage}
               isUploadingPhoto={isUploadingPhoto}
               uploadingSlot={uploadingSlot}
               onUploadPhotoForSlot={handleUploadPhotoForSlot}
