@@ -82,7 +82,7 @@ export default function Gallery() {
   });
 
   return (
-    <section id="gallery" className="py-14 sm:py-28 md:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
+    <section id="gallery" className="pt-6 sm:pt-10 md:pt-12 pb-6 sm:pb-24 md:pb-28 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
       {/* Background ambient lighting */}
       <div className="absolute top-1/3 -left-36 w-[500px] h-[500px] bg-[#e6efe6]/60 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-[450px] h-[450px] bg-[#faeee4]/70 rounded-full blur-[130px] pointer-events-none" />
@@ -219,15 +219,15 @@ export default function Gallery() {
         </div>
 
         {/* Instagram CTA */}
-        <div className="mt-14 sm:mt-18 text-center">
+        <div className="mt-2 sm:mt-12 text-center">
           <a
             id="gallery-instagram"
             href={cafeData.socials.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-[#4a7a4a]/30 hover:border-[#4a7a4a] bg-white/70 hover:bg-white text-[#1a2e1a] font-medium text-xs uppercase tracking-[0.16em] transition-all duration-300 hover:shadow-lg hover:shadow-[#4a7a4a]/10 hover:-translate-y-0.5 group"
+            className="inline-flex items-center gap-2.5 px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-full border border-[#4a7a4a]/30 hover:border-[#4a7a4a] bg-white/80 hover:bg-white text-[#1a2e1a] font-medium text-xs uppercase tracking-[0.14em] transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group shadow-xs"
           >
-            <SiInstagram className="w-4 h-4 text-[#c1713a] group-hover:scale-110 transition-transform duration-300" />
+            <SiInstagram className="w-5 h-5 sm:w-5 sm:h-5 text-[#c1713a] shrink-0 group-hover:scale-110 transition-transform duration-300" />
             <span>{g.instagramCta}</span>
           </a>
         </div>

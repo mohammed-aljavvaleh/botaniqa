@@ -608,11 +608,11 @@ export default function AdminPage() {
     } else if (hourForm.customText.trim()) {
       finalTimeStr = hourForm.customText.trim();
       oHour = parseTimeToNumber(hourForm.openTime);
-      cHour = parseCloseTimeToNumber(hourForm.closeTime, oHour);
+      cHour = parseTimeToNumber(hourForm.closeTime);
     } else {
       finalTimeStr = `${hourForm.openTime} – ${hourForm.closeTime}`;
       oHour = parseTimeToNumber(hourForm.openTime);
-      cHour = parseCloseTimeToNumber(hourForm.closeTime, oHour);
+      cHour = parseTimeToNumber(hourForm.closeTime);
     }
 
     if (editingHour) {

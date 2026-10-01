@@ -78,7 +78,7 @@ export default function Menu() {
   ];
 
   return (
-    <section id="menu" className="relative py-20 sm:py-28 bg-[#0d180d] text-white overflow-hidden">
+    <section id="menu" className="relative pt-12 pb-20 sm:py-28 bg-[#0d180d] text-white overflow-hidden">
       {/* Ambient background glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#c1713a]/12 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[450px] h-[300px] bg-[#2d5a2d]/20 rounded-full blur-[100px] pointer-events-none" />
@@ -194,7 +194,7 @@ export default function Menu() {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/menu"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-[#c1713a] hover:bg-[#a95d2c] text-white text-sm sm:text-base font-bold shadow-lg shadow-[#c1713a]/25 transition-all duration-300 hover:scale-102 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-full bg-[#c1713a] hover:bg-[#ad602d] text-white text-sm sm:text-base font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.99] cursor-pointer"
               >
                 <span>
                   {lang === 'tr'

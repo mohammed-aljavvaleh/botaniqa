@@ -120,10 +120,9 @@ export default function Navbar() {
             {/* 3. Visit Us button with locked dimensions so text changes never shift the toggle */}
             <button
               onClick={() => handleNav('#location')}
-              className="w-[155px] h-9 group relative shrink-0 rounded-full bg-gradient-to-r from-[#c1713a] to-[#d6854d] text-[#fffef9] text-xs uppercase tracking-[0.14em] font-semibold transition-all duration-300 hover:shadow-[0_8px_24px_-4px_rgba(193,113,58,0.45)] hover:-translate-y-0.5 cursor-pointer overflow-hidden flex items-center justify-center text-center select-none"
+              className="w-[155px] h-9 shrink-0 rounded-full bg-[#c1713a] hover:bg-[#ad602d] text-[#fffef9] text-xs uppercase tracking-[0.14em] font-semibold transition-all duration-200 shadow-xs hover:shadow-sm cursor-pointer flex items-center justify-center text-center select-none active:scale-[0.99]"
             >
-              <span className="relative z-10 block text-center truncate px-2">{t.nav.visitUs}</span>
-              <div className="absolute inset-0 bg-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="block text-center truncate px-2">{t.nav.visitUs}</span>
             </button>
           </div>
 
@@ -207,7 +206,7 @@ export default function Navbar() {
           <div className="p-6 border-t border-[#254225] bg-[#0f1d0f]/60">
             <button
               onClick={() => handleNav('#location')}
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#c1713a] to-[#d6854d] text-white font-semibold text-center text-sm uppercase tracking-wider hover:opacity-95 transition-opacity shadow-lg shadow-[#c1713a]/25"
+              className="w-full py-3.5 px-4 rounded-full bg-[#c1713a] hover:bg-[#ad602d] text-white font-semibold text-center text-sm uppercase tracking-wider transition-colors shadow-xs active:scale-[0.99]"
             >
               {t.nav.visitUs}
             </button>

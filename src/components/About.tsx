@@ -20,7 +20,7 @@ export default function About() {
   const secondaryImage = cafeData?.aboutSecondaryImage || '/gallery_1.jpg';
 
   return (
-    <section id="about" className="py-14 sm:py-28 md:py-36 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
+    <section id="about" className="pt-12 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-14 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
       {/* Delicate background ambient noise & soft gradient blur */}
       <div className="absolute top-1/3 -left-48 w-96 h-96 bg-[#e2ede2]/50 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-24 right-0 w-[500px] h-[500px] bg-[#f7ebe0]/60 rounded-full blur-[140px] pointer-events-none" />
@@ -49,7 +49,7 @@ export default function About() {
         </div>
 
         {/* Asymmetric Overlapping Visual & Narrative Composition */}
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center mb-14 sm:mb-28">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center mb-10 sm:mb-18">
           {/* Overlapping Multi-Layer Image Architecture (7 cols) */}
           <div className="lg:col-span-7 relative pb-4 sm:pb-0">
             {/* Primary architectural photo */}
@@ -75,9 +75,7 @@ export default function About() {
                 sizes="(max-width: 640px) 150px, 240px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 text-white text-[9px] sm:text-[11px] font-medium tracking-wide pointer-events-none">
-                {lang === 'tr' ? 'Tek kökenli demleme' : 'Single origin brew'}
-              </div>
+
             </div>
 
             {/* Tactile Rating Seal Badge (Links directly to Google Reviews) */}
@@ -137,7 +135,7 @@ export default function About() {
         </div>
 
         {/* Asymmetrical 3 Pillars (Editorial Architecture with varying visual weight) */}
-        <div className="border-t border-[#e2dad0] pt-12 sm:pt-16">
+        <div className="border-t border-[#e2dad0] pt-8 sm:pt-12">
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {a.pillars.map((pillar, i) => (
               <div

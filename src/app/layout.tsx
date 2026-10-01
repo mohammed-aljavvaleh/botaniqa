@@ -11,10 +11,16 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  themeColor: "#0e1b0e",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://botaniqa.coffee'),
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "botaniqa",
+  },
   title: "botaniqa café — Doğanın Kahveyle Buluştuğu Yer | Şanlıurfa",
   description:
     "botaniqa, Karaköprü, Şanlıurfa'da üst düzey bir botanik kafedir. Özel espresso, el yapımı mocktail'ler, imza çaylar ve taze pastalar; yemyeşil bir sığınak atmosferinde.",

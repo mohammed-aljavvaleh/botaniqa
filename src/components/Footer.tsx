@@ -12,6 +12,7 @@ import {
   SiGooglemaps,
 } from 'react-icons/si';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLang } from '@/context/LanguageContext';
 import { useCafeData } from '@/context/CafeDataContext';
 import Logo from '@/components/Logo';
@@ -213,14 +214,28 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#1a2e1a] py-5">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#3d5c3d]">
+      <div className="border-t border-[#1a2e1a] py-6">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#3d5c3d]">
           <div>
             <p>© {currentYear} BOTANİQA CAFE. {f.copyright}</p>
           </div>
-          <p className="flex items-center gap-1">
-            Made by MBN  <Heart className="w-3 h-3 text-[#c1713a] fill-current" />
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-[#4d704d] font-light tracking-wider uppercase">
+              {lang === 'tr' ? 'Geliştirici' : 'Crafted by'}
+            </span>
+            <div className="flex items-center gap-2 group/sig">
+              <span className="text-xs font-medium tracking-wider text-[#b8d9b8] group-hover/sig:text-white transition-colors font-mono">
+                MBN
+              </span>
+              <Image
+                src="/signature-light.png"
+                alt="MBN Signature"
+                width={120}
+                height={40}
+                className="h-8 sm:h-9 w-auto object-contain opacity-75 group-hover/sig:opacity-100 transition-all duration-300 group-hover/sig:scale-105"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </footer>

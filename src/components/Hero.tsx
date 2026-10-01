@@ -90,11 +90,11 @@ export default function Hero() {
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto">
           <Link
             id="hero-explore-menu"
             href="/menu"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-gradient-to-r from-[#c1713a] to-[#d6854d] hover:from-[#b0612c] hover:to-[#c6763f] text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-300 shadow-xl shadow-[#c1713a]/30 hover:shadow-2xl hover:shadow-[#c1713a]/40 hover:-translate-y-1 active:scale-98 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-full bg-[#c1713a] hover:bg-[#ad602d] text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.99] cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-white/90" />
             <span>{h.exploreCta}</span>
@@ -104,7 +104,7 @@ export default function Hero() {
             href={data.contact?.mapsUrl || "https://maps.google.com/?q=Botaniqa+Cafe+Karakopru+Sanliurfa"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full border border-[#8bbf8b]/40 hover:border-[#8bbf8b] text-[#e0f0e0] hover:text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-300 bg-[#162916]/40 hover:bg-[#203a20]/60 backdrop-blur-md hover:-translate-y-1 active:scale-98"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-full border border-white/20 hover:border-white/40 text-[#f0f6f0] hover:text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-200 bg-white/10 hover:bg-white/15 backdrop-blur-md active:scale-[0.99]"
           >
             <MapPin className="w-4 h-4 text-[#e8a97a]" />
             <span>{h.directionsCta}</span>

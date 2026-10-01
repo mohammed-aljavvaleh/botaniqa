@@ -1,41 +1,8 @@
 'use client';
 
-import { MapPin, Clock, ExternalLink, Compass } from 'lucide-react';
+import { MapPin, Clock, ExternalLink } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 import { useCafeData } from '@/context/CafeDataContext';
-
-function getLiveStatus(hours: { dayTr: string; openHour: number; closeHour: number }[], lang: 'tr' | 'en') {
-  if (!hours || hours.length === 0) {
-    return { isOpen: true, label: lang === 'tr' ? 'Açık' : 'Open' };
-  }
-
-  const now = new Date();
-  const currentHour = now.getHours() + now.getMinutes() / 60;
-  const jsDay = now.getDay();
-  const dayNames = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-  const todayName = dayNames[jsDay];
-
-  const todaySchedule = hours.find((h) => h.dayTr.includes(todayName)) || hours[0];
-
-  if (!todaySchedule) {
-    return { isOpen: false, label: lang === 'tr' ? 'Kapalı' : 'Closed' };
-  }
-
-  const { openHour = 8, closeHour = 22 } = todaySchedule;
-  const isOpen = currentHour >= openHour && currentHour < closeHour;
-
-  if (isOpen) {
-    return {
-      isOpen: true,
-      label: lang === 'tr' ? `Şu an Açık · ${closeHour}:00'a kadar` : `Open Now · until ${closeHour}:00`,
-    };
-  }
-
-  return {
-    isOpen: false,
-    label: lang === 'tr' ? `Şu an Kapalı · Açılış ${openHour}:00` : `Closed Now · Opens at ${openHour}:00`,
-  };
-}
 
 export default function Location() {
   const { t, lang } = useLang();
@@ -45,8 +12,6 @@ export default function Location() {
   const addressText = lang === 'tr' ? contact.addressTr : contact.addressEn;
   const mapsUrl = contact.mapsUrl;
   const embedUrl = contact.embedUrl;
-
-  const { isOpen, label: statusLabel } = getLiveStatus(cafeData.hours, lang);
 
   return (
     <section id="location" className="py-14 sm:py-28 md:py-36 bg-[#132413] text-[#fdf8f0] relative overflow-hidden">
@@ -126,27 +91,6 @@ export default function Location() {
 
           {/* Editorial Visiting Ledger (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            {/* Live Status Badge */}
-            {cafeData.hours?.length > 0 && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#182e18] to-[#142614] border border-[#2d4e2d] flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                      isOpen ? 'bg-emerald-400 pulse-dot' : 'bg-[#c1713a]'
-                    }`}
-                  />
-                  <span
-                    className={`font-semibold text-sm sm:text-base tracking-wide ${
-                      isOpen ? 'text-emerald-300' : 'text-[#e8a97a]'
-                    }`}
-                  >
-                    {statusLabel}
-                  </span>
-                </div>
-                <Compass className="w-4 h-4 text-[#759f75]" />
-              </div>
-            )}
-
             {/* Address & Direction Card */}
             {addressText?.trim() && (
               <div className="p-6 rounded-3xl bg-[#162a16]/80 border border-[#294829] backdrop-blur-md space-y-4">
