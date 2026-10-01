@@ -231,13 +231,13 @@ export default function MenuModal({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div>
                 <label
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#d8d2c4] bg-[#fbfaf8] hover:bg-[#f3f0e8] text-xs font-semibold text-[#2c442c] cursor-pointer transition-colors shrink-0 ${
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d8d2c4] bg-[#fbfaf8] hover:bg-[#f3f0e8] hover:border-[#1c381c] text-xs font-semibold text-[#2c442c] cursor-pointer transition-colors ${
                     isUploadingMenuPhoto ? 'opacity-50 pointer-events-none' : ''
                   }`}
                 >
-                  <Upload className={`w-3.5 h-3.5 text-[#c1713a] ${isUploadingMenuPhoto ? 'animate-spin' : ''}`} />
+                  <Upload className={`w-4 h-4 text-[#c1713a] ${isUploadingMenuPhoto ? 'animate-spin' : ''}`} />
                   <span>{isUploadingMenuPhoto ? t.menuModal.uploading : t.menuModal.uploadBtn}</span>
                   <input
                     type="file"
@@ -247,13 +247,6 @@ export default function MenuModal({
                     className="hidden"
                   />
                 </label>
-                <input
-                  type="text"
-                  value={modalForm.image || ''}
-                  onChange={(e) => setModalForm({ ...modalForm, image: e.target.value })}
-                  placeholder={t.menuModal.urlPlaceholder}
-                  className="flex-1 bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] rounded-xl px-3 py-2 text-xs text-[#1c2a1c] outline-none"
-                />
               </div>
             )}
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Leaf, Coffee, Sparkles, Star, Heart } from 'lucide-react';
+import { Leaf, Coffee, Star, Heart } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 
 const pillarIcons = [

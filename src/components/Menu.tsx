@@ -26,7 +26,7 @@ export default function Menu() {
       countEn: '27 Items',
       priceTr: "₺100'den başlayan",
       priceEn: 'From ₺100',
-      image: 'https://urfamenu.com/botanica/uploads/products/img_6a57bc11b7f4f7.50389673.jpg',
+      image: '/images/menu/coffee.jpg',
       badgeTr: 'Popüler',
       badgeEn: 'Popular',
     },
@@ -41,7 +41,7 @@ export default function Menu() {
       countEn: '13 Items',
       priceTr: "₺200'den başlayan",
       priceEn: 'From ₺200',
-      image: 'https://urfamenu.com/botanica/uploads/products/img_6a4c2f91599966.56144722.jpg',
+      image: '/images/menu/pastries.jpg',
       badgeTr: 'İmza Tatlar',
       badgeEn: 'Signature',
     },
@@ -56,7 +56,7 @@ export default function Menu() {
       countEn: '38 Items',
       priceTr: "₺120'den başlayan",
       priceEn: 'From ₺120',
-      image: 'https://urfamenu.com/botanica/uploads/products/img_6a57b7f9743289.54169343.jpg',
+      image: '/images/menu/cold-drinks.jpg',
       badgeTr: 'Ferahlatıcı',
       badgeEn: 'Refreshing',
     },
@@ -71,7 +71,7 @@ export default function Menu() {
       countEn: '28 Items',
       priceTr: '₺300',
       priceEn: '₺300',
-      image: 'https://urfamenu.com/botanica/uploads/products/img_6a4bd52f8dc6a2.27872650.jpg',
+      image: '/images/menu/nargile.jpg',
       badgeTr: 'Özel Seri',
       badgeEn: 'Special Series',
     },
@@ -113,60 +113,60 @@ export default function Menu() {
         </div>
 
         {/* 4 Featured Category Teasers */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12 sm:mb-14">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-12 sm:mb-14">
           {highlights.map((card) => {
             const Icon = card.icon;
             return (
               <Link
                 key={card.id}
                 href="/menu"
-                className="group relative bg-[#132213] border border-[#243c24] hover:border-[#c1713a]/70 rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#c1713a]/10 overflow-hidden"
+                className="group relative bg-[#132213] border border-[#243c24] hover:border-[#c1713a]/70 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#c1713a]/10 overflow-hidden"
               >
                 <div>
                   {/* Photo with Overlay Badge */}
-                  <div className="relative w-full h-44 rounded-2xl overflow-hidden mb-4 bg-black/40 border border-[#284428]">
+                  <div className="relative w-full h-32 sm:h-44 rounded-xl sm:rounded-2xl overflow-hidden mb-3 sm:mb-4 bg-black/40 border border-[#284428]">
                     <Image
                       src={card.image}
                       alt={lang === 'tr' ? card.titleTr : card.titleEn}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 25vw"
+                      sizes="(max-width: 768px) 50vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
 
-                    <div className="absolute top-2.5 left-2.5">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#132213]/85 text-[#f0caa8] border border-[#c1713a]/30 backdrop-blur-xs">
+                    <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5">
+                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#132213]/85 text-[#f0caa8] border border-[#c1713a]/30 backdrop-blur-xs">
                         {lang === 'tr' ? card.badgeTr : card.badgeEn}
                       </span>
                     </div>
 
-                    <div className="absolute bottom-2.5 right-2.5">
-                      <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-white text-[#132213] shadow-md font-mono">
+                    <div className="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5">
+                      <span className="px-2 sm:px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-white text-[#132213] shadow-md font-mono">
                         {lang === 'tr' ? card.countTr : card.countEn}
                       </span>
                     </div>
                   </div>
 
                   {/* Title & Description */}
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className="w-4 h-4 text-[#e8a97a]" />
-                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#f0caa8] transition-colors">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5">
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#e8a97a] shrink-0" />
+                    <h3 className="text-xs sm:text-base font-bold text-white tracking-tight group-hover:text-[#f0caa8] transition-colors line-clamp-1">
                       {lang === 'tr' ? card.titleTr : card.titleEn}
                     </h3>
                   </div>
 
-                  <p className="text-xs text-[#8da68d] leading-relaxed line-clamp-2">
+                  <p className="text-[11px] sm:text-xs text-[#8da68d] leading-relaxed line-clamp-2">
                     {lang === 'tr' ? card.descTr : card.descEn}
                   </p>
                 </div>
 
                 {/* Card Footer: Starting Price & Link hint */}
-                <div className="pt-4 mt-3 border-t border-[#203620] flex items-center justify-between text-xs">
+                <div className="pt-2.5 sm:pt-4 mt-2 sm:mt-3 border-t border-[#203620] flex items-center justify-between text-[11px] sm:text-xs">
                   <span className="text-[#e8a97a] font-semibold">
                     {lang === 'tr' ? card.priceTr : card.priceEn}
                   </span>
                   <span className="inline-flex items-center gap-1 text-[#8da68d] group-hover:text-white transition-colors font-medium">
-                    <span>{lang === 'tr' ? 'İncele' : 'View'}</span>
+                    <span className="hidden xs:inline">{lang === 'tr' ? 'İncele' : 'View'}</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </div>

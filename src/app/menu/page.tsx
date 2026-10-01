@@ -313,7 +313,7 @@ export default function MenuPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={m.searchPlaceholder}
-                className="w-full bg-white border border-[#ded8cc] focus:border-[#1c381c] focus:ring-1 focus:ring-[#1c381c]/20 rounded-full pl-9 pr-9 py-2 text-xs sm:text-sm text-[#1c2a1c] placeholder:text-[#9faaa0] outline-none shadow-2xs transition-all"
+                className="w-full bg-white border border-[#ded8cc] focus:border-[#1c381c] focus:ring-1 focus:ring-[#1c381c]/20 rounded-full pl-9 pr-9 py-2 text-base sm:text-sm text-[#1c2a1c] placeholder:text-[#9faaa0] outline-none shadow-2xs transition-all"
               />
               {searchQuery && (
                 <button
@@ -424,7 +424,7 @@ export default function MenuPage() {
                   </div>
 
                   {/* Grid of Menu Items */}
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                     {items.map((item) => (
                       <MenuItemCard key={item.id} item={item} lang={lang} />
                     ))}
@@ -443,7 +443,7 @@ export default function MenuPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {filteredItems.map((item) => (
                 <MenuItemCard key={item.id} item={item} lang={lang} />
               ))}
@@ -502,43 +502,62 @@ function MenuItemCard({
   };
   lang: 'tr' | 'en';
 }) {
+  const [imgError, setImgError] = useState(false);
   const isAvailable = item.available !== false;
   const tagStyle = item.tag ? tagStyles[item.tag] : null;
 
   return (
     <div
-      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${!isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
+      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-3 sm:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${!isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
         }`}
     >
       <div>
-        {/* Item Image (if available from Vercel Blob or preset) */}
-        {item.image && (
-          <div className="relative w-full h-44 mb-4 rounded-xl overflow-hidden bg-[#f4f1ea]">
+        {/* Item Image or Fallback Cafe Logo */}
+        <div className="relative w-full h-32 sm:h-44 mb-3 sm:mb-4 rounded-xl overflow-hidden bg-[#0d1c0d]">
+          {item.image && !imgError ? (
             <Image
               src={item.image}
               alt={item.name}
               fill
+              unoptimized={item.image.includes('urfamenu.com')}
+              onError={() => setImgError(true)}
               className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
             />
-          </div>
-        )}
+          ) : (
+            <div className="relative w-full h-full bg-gradient-to-br from-[#132813] via-[#091509] to-[#162e16] flex flex-col items-center justify-center p-2 sm:p-3 select-none">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,170,110,0.15)_0%,transparent_70%)] pointer-events-none" />
+              <div className="relative w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-[#c8aa6e]/40 bg-[#023f04] group-hover:scale-105 transition-transform duration-500">
+                <Image
+                  src="/botaniqa-logo.jpg"
+                  alt="botaniqa café"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 48px, 80px"
+                />
+              </div>
+              <span className="relative mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] font-serif tracking-[0.2em] uppercase text-[#c8aa6e] font-semibold">
+                botaniqa café
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Top Header Row: Name & Tag */}
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="font-serif text-lg sm:text-xl font-medium text-[#1c2a1c] group-hover:text-[#c1713a] transition-colors leading-snug">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-3 mb-1.5 sm:mb-2">
+          <h3 className="font-serif text-sm sm:text-lg md:text-xl font-medium text-[#1c2a1c] group-hover:text-[#c1713a] transition-colors leading-snug line-clamp-2">
             {item.name}
           </h3>
 
           {item.tag && (
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border flex-shrink-0 ${tagStyle
+              className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border flex-shrink-0 self-start ${tagStyle
                   ? `${tagStyle.bg} ${tagStyle.text} ${tagStyle.border}`
                   : 'bg-[#f4efe6] text-[#6d5a45] border-[#e4ded0]'
                 }`}
             >
               {tagStyle?.dot && (
-                <span className={`w-1.5 h-1.5 rounded-full ${tagStyle.dot}`} />
+                <span className={`w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full ${tagStyle.dot}`} />
               )}
               <span>{item.tag}</span>
             </span>
@@ -546,22 +565,24 @@ function MenuItemCard({
         </div>
 
         {/* Description */}
-        <p className="text-xs sm:text-sm text-[#5f745f] leading-relaxed font-light mb-4 line-clamp-2 sm:line-clamp-3">
-          {item.desc}
-        </p>
+        {item.desc && (
+          <p className="text-[11px] sm:text-sm text-[#5f745f] leading-relaxed font-light mb-2.5 sm:mb-4 line-clamp-2 sm:line-clamp-3">
+            {item.desc}
+          </p>
+        )}
       </div>
 
       {/* Bottom Row: Price & Availability */}
-      <div className="pt-3 border-t border-[#f0ebe0] flex items-center justify-between">
+      <div className="pt-2 sm:pt-3 border-t border-[#f0ebe0] flex items-center justify-between gap-1">
         <div>
-          <span className="font-serif text-lg sm:text-xl font-bold text-[#1c381c]">
+          <span className="font-serif text-base sm:text-xl font-bold text-[#1c381c]">
             {item.price}
           </span>
         </div>
 
         {!isAvailable && (
-          <span className="text-[11px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
-            {lang === 'tr' ? 'Şu an Tükendi' : 'Temporarily Unavailable'}
+          <span className="text-[9px] sm:text-[11px] font-semibold text-stone-500 bg-stone-100 px-1.5 sm:px-2.5 py-0.5 rounded-full border border-stone-200 shrink-0">
+            {lang === 'tr' ? 'Tükendi' : 'Unavailable'}
           </span>
         )}
       </div>

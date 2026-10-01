@@ -219,7 +219,7 @@ export default function Footer() {
             <p>© {currentYear} BOTANİQA CAFE. {f.copyright}</p>
           </div>
           <p className="flex items-center gap-1">
-            Made by MBN <Heart className="w-3 h-3 text-[#c1713a] fill-current" />
+            Made by MBN  <Heart className="w-3 h-3 text-[#c1713a] fill-current" />
           </p>
         </div>
       </div>
