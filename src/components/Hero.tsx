@@ -32,11 +32,12 @@ export default function Hero() {
           <video
             key={heroVideo.url}
             src={heroVideo.url}
-            poster={heroVideo.poster || undefined}
+            poster={heroVideo.poster || '/hero_coffee.webp'}
             autoPlay
             muted
             loop
             playsInline
+            preload="none"
             onLoadedData={() => setVideoLoaded(true)}
             className={`w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${
               videoLoaded ? 'opacity-100' : 'opacity-0'
@@ -44,11 +45,11 @@ export default function Hero() {
           />
         ) : (
           <Image
-            src="/hero_coffee.jpg"
+            src="/hero_coffee.webp"
             alt="botaniqa kafe atmosferi — botanik sarmaşıklar ve sıcak pour over"
             fill
             priority
-            quality={92}
+            quality={85}
             className="object-cover object-center scale-102"
             sizes="100vw"
           />
@@ -141,7 +142,6 @@ export default function Hero() {
                 width={34}
                 height={42}
                 className="w-7.5 h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
-                priority
               />
             </div>
           </div>

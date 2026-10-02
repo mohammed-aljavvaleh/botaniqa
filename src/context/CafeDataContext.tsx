@@ -158,17 +158,6 @@ export function CafeDataProvider({
   const latestDataRef = useRef<CafeStoreData>(data);
   latestDataRef.current = data;
 
-  // Debounce timer ref to prevent constant network requests while typing
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
-
   // Sync to localStorage immediately whenever data changes (0ms UI latency)
   const updateDataLocally = (newData: CafeStoreData) => {
     latestDataRef.current = newData;
@@ -180,20 +169,7 @@ export function CafeDataProvider({
     }
   };
 
-  const scheduleDebouncedSave = (updatedData: CafeStoreData) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    debounceTimerRef.current = setTimeout(() => {
-      saveToServer(updatedData);
-    }, 1500);
-  };
-
   const saveToServer = async (customData?: CafeStoreData): Promise<boolean> => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
     const payload = customData || latestDataRef.current;
     setIsSaving(true);
     try {
@@ -205,8 +181,11 @@ export function CafeDataProvider({
       if (res.ok) {
         const json = await res.json();
         if (json.success) {
+          const finalData = json.data || payload;
+          latestDataRef.current = finalData;
+          setData(finalData);
           try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(finalData));
           } catch {
             // ignore
           }
@@ -225,19 +204,16 @@ export function CafeDataProvider({
   const updateCategories = (newCategories: CategoryData[]) => {
     const updated = { ...latestDataRef.current, categories: newCategories };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateMenu = (newMenu: MenuItemData[]) => {
     const updated = { ...latestDataRef.current, menu: newMenu };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateHours = (newHours: WorkingHourItem[]) => {
     const updated = { ...latestDataRef.current, hours: newHours };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateContact = (newContact: Partial<ContactData>) => {
@@ -246,7 +222,6 @@ export function CafeDataProvider({
       contact: { ...latestDataRef.current.contact, ...newContact },
     };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateSocials = (newSocials: Partial<SocialsData>) => {
@@ -255,7 +230,6 @@ export function CafeDataProvider({
       socials: { ...latestDataRef.current.socials, ...newSocials },
     };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateAuth = async (newAuth: Partial<AdminAuthData>): Promise<boolean> => {
@@ -275,7 +249,6 @@ export function CafeDataProvider({
   const updateGallery = (newGallery: GalleryItemData[]) => {
     const updated = { ...latestDataRef.current, gallery: newGallery };
     updateDataLocally(updated);
-    scheduleDebouncedSave(updated);
   };
 
   const updateHeroVideo = async (newHeroVideo: Partial<HeroVideoData>): Promise<boolean> => {

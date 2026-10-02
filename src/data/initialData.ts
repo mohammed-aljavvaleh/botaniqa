@@ -41,6 +41,8 @@ export interface WorkingHourItem {
 export interface ContactData {
   phone: string;
   phoneRaw: string; // e.g. +905422979262
+  phoneSecondary?: string;
+  phoneSecondaryRaw?: string;
   email: string;
   addressTr: string;
   addressEn: string;
@@ -164,6 +166,8 @@ export const initialCafeData: CafeStoreData = {
   contact: {
     phone: '+90 542 297 92 62',
     phoneRaw: '+905422979262',
+    phoneSecondary: '',
+    phoneSecondaryRaw: '',
     email: '',
     addressTr: '50 metre yolu üzeri Cadının evi yukarısı',
     addressEn: '',
@@ -222,6 +226,20 @@ export const initialCafeData: CafeStoreData = {
       src: '/uploads/1790797806543-IMG_2097.webp',
       altTr: 'botaniqa Deneyimi',
       altEn: 'botaniqa Experience',
+    },
+    {
+      id: 'slot-6',
+      slot: 6,
+      src: '/uploads/1790857414342-WhatsApp_Image_2026-10-01_at_12.38.43_PM.webp',
+      altTr: 'Geleneksel Türk Kahvesi ve Lokum Keyfi — Botaniqa Cafe',
+      altEn: 'Traditional Turkish Coffee and Turkish Delight Experience — Botaniqa Cafe',
+    },
+    {
+      id: 'slot-7',
+      slot: 7,
+      src: '/uploads/1790857402308-WhatsApp_Image_2026-10-01_at_12.38.43_PM__6_.webp',
+      altTr: 'Botaniqa Açık Hava Bahçe Terası ve Sıcak Işıklar',
+      altEn: 'Botaniqa Open-Air Garden Terrace and Warm Lights',
     },
   ],
   hours: [

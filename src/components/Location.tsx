@@ -9,7 +9,7 @@ export default function Location() {
   const { data: cafeData } = useCafeData();
   const l = t.location;
   const contact = cafeData.contact;
-  const addressText = lang === 'tr' ? contact.addressTr : contact.addressEn;
+  const addressText = lang === 'tr' ? (contact.addressTr || contact.addressEn) : (contact.addressEn || contact.addressTr);
   const mapsUrl = contact.mapsUrl;
   const embedUrl = contact.embedUrl;
 

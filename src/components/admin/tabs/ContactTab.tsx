@@ -9,6 +9,9 @@ interface ContactTabProps {
     addressTr: string;
     addressEn: string;
     phone: string;
+    phoneRaw?: string;
+    phoneSecondary?: string;
+    phoneSecondaryRaw?: string;
     email: string;
     mapsUrl: string;
     embedUrl: string;
@@ -23,6 +26,92 @@ export default function ContactTab({
   lang,
 }: ContactTabProps) {
   const t = adminTranslations[lang];
+
+  // Helper to extract 05XXXXXXXXX for the input
+  const to05Digits = (str: string): string => {
+    if (!str) return '';
+    const digits = str.replace(/\D/g, '');
+    if (digits.startsWith('905') && digits.length === 12) {
+      return '0' + digits.slice(2);
+    }
+    if (digits.startsWith('5') && digits.length === 10) {
+      return '0' + digits;
+    }
+    if (digits.startsWith('05')) {
+      return digits.slice(0, 11);
+    }
+    return digits.slice(0, 11);
+  };
+
+  // ── Main Phone State ────────────────────────────────────────────────
+  const [phoneInput, setPhoneInput] = React.useState(() => to05Digits(contact.phone || ''));
+
+  React.useEffect(() => {
+    const formatted = to05Digits(contact.phone || '');
+    if (to05Digits(phoneInput) !== formatted && to05Digits(contact.phone || '') !== phoneInput) {
+      setPhoneInput(formatted);
+    }
+  }, [contact.phone]);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/\D/g, '');
+    if (raw.startsWith('905') && raw.length === 12) {
+      raw = '0' + raw.slice(2);
+    } else if (raw.startsWith('5') && !raw.startsWith('05') && raw.length === 10) {
+      raw = '0' + raw;
+    }
+    if (raw.length > 11) {
+      raw = raw.slice(0, 11);
+    }
+    setPhoneInput(raw);
+
+    onUpdateContact({
+      phone: raw,
+      phoneRaw: raw.startsWith('05') && raw.length === 11 ? `+90${raw.slice(1)}` : raw,
+    });
+  };
+
+  const trimmed = phoneInput.trim();
+  const isInputEmpty = trimmed.length === 0;
+  const isInvalidStart = trimmed.length >= 2 && !trimmed.startsWith('05');
+  const isSingleDigitNotZero = trimmed.length === 1 && trimmed !== '0';
+  const isIncomplete = trimmed.startsWith('05') && trimmed.length < 11;
+  const isComplete = trimmed.startsWith('05') && trimmed.length === 11;
+
+  // ── Secondary Phone State ───────────────────────────────────────────
+  const [phoneSecondaryInput, setPhoneSecondaryInput] = React.useState(() => to05Digits(contact.phoneSecondary || ''));
+
+  React.useEffect(() => {
+    const formatted = to05Digits(contact.phoneSecondary || '');
+    if (to05Digits(phoneSecondaryInput) !== formatted && to05Digits(contact.phoneSecondary || '') !== phoneSecondaryInput) {
+      setPhoneSecondaryInput(formatted);
+    }
+  }, [contact.phoneSecondary]);
+
+  const handlePhoneSecondaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/\D/g, '');
+    if (raw.startsWith('905') && raw.length === 12) {
+      raw = '0' + raw.slice(2);
+    } else if (raw.startsWith('5') && !raw.startsWith('05') && raw.length === 10) {
+      raw = '0' + raw;
+    }
+    if (raw.length > 11) {
+      raw = raw.slice(0, 11);
+    }
+    setPhoneSecondaryInput(raw);
+
+    onUpdateContact({
+      phoneSecondary: raw,
+      phoneSecondaryRaw: raw.startsWith('05') && raw.length === 11 ? `+90${raw.slice(1)}` : raw,
+    });
+  };
+
+  const trimmedSec = phoneSecondaryInput.trim();
+  const isSecEmpty = trimmedSec.length === 0;
+  const isSecInvalidStart = trimmedSec.length >= 2 && !trimmedSec.startsWith('05');
+  const isSecSingleDigitNotZero = trimmedSec.length === 1 && trimmedSec !== '0';
+  const isSecIncomplete = trimmedSec.startsWith('05') && trimmedSec.length < 11;
+  const isSecComplete = trimmedSec.startsWith('05') && trimmedSec.length === 11;
 
   return (
     <section className="space-y-6 animate-fade-in max-w-4xl">
@@ -39,64 +128,140 @@ export default function ContactTab({
           <span>{t.contactTab.emptyNotice}</span>
         </div>
 
+        {/* Phone Numbers Grid (Main & Secondary) */}
         <div className="grid sm:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {t.contactTab.phone}
-            </label>
+          {/* Main Phone */}
+          <div className="p-4 rounded-2xl bg-[#faf8f4] border border-[#eee8db] space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider">
+                {t.contactTab.phone}
+              </label>
+              <span className="text-[11px] text-[#718771] font-mono">
+                {trimmed.length}/11
+              </span>
+            </div>
+            <p className="text-[11px] text-[#6d7f6d] leading-snug">
+              {t.contactTab.phoneDesc}
+            </p>
             <input
               type="tel"
-              value={contact.phone}
-              onChange={(e) => {
-                // Allow only phone characters: digits, spaces, +, -, (, )
-                const val = e.target.value.replace(/[^0-9+\s\-()]/g, '');
-                onUpdateContact({ phone: val });
-              }}
-              placeholder="+90 542 297 92 62"
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
+              inputMode="numeric"
+              maxLength={11}
+              value={phoneInput}
+              onChange={handlePhoneChange}
+              placeholder={t.contactTab.phonePlaceholder || "05*********"}
+              className={`w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors ${isInvalidStart || isSingleDigitNotZero
+                ? 'border-rose-400 bg-rose-50/30 text-rose-950 focus:border-rose-500'
+                : isComplete
+                  ? 'border-emerald-500 bg-emerald-50/20 text-[#1c2a1c] focus:border-emerald-600'
+                  : 'border-[#d8d2c4] bg-[#fbfaf8] text-[#1c2a1c] focus:border-[#1c381c] focus:bg-white'
+                }`}
             />
+
+            {/* Validation & Feedback messages */}
+            {(isInvalidStart || isSingleDigitNotZero) && (
+              <p className="text-xs text-rose-600 font-medium flex items-center gap-1.5 mt-1">
+                {t.contactTab.phoneWarningStart || 'Numara "05" ile başlamalıdır (Örn: 05344402028)'}
+              </p>
+            )}
+
+            {isIncomplete && (
+              <p className="text-xs text-amber-700 font-medium flex items-center gap-1.5 mt-1">
+                {lang === 'tr' ? `11 haneli olmalıdır (${trimmed.length}/11)` : `Must be 11 digits (${trimmed.length}/11)`}
+              </p>
+            )}
+
+            {isInputEmpty && (
+              <p className="text-[11px] text-[#718771] mt-1">
+                {t.contactTab.phoneRule || 'Numara "05" ile başlamalı ve en fazla 11 haneli olmalıdır'}
+              </p>
+            )}
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {t.contactTab.email}
-            </label>
+          {/* Secondary Phone */}
+          <div className="p-4 rounded-2xl bg-[#faf8f4] border border-[#eee8db] space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider">
+                {t.contactTab.phoneSecondary}
+              </label>
+              <span className="text-[11px] text-[#718771] font-mono">
+                {trimmedSec.length}/11
+              </span>
+            </div>
+            <p className="text-[11px] text-[#6d7f6d] leading-snug">
+              {t.contactTab.phoneSecondaryDesc}
+            </p>
             <input
-              type="email"
-              value={contact.email}
-              onChange={(e) => onUpdateContact({ email: e.target.value.trim().toLowerCase() })}
-              placeholder="info@botaniqacafe.com"
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
+              type="tel"
+              inputMode="numeric"
+              maxLength={11}
+              value={phoneSecondaryInput}
+              onChange={handlePhoneSecondaryChange}
+              placeholder={t.contactTab.phonePlaceholder || "05*********"}
+              className={`w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors ${isSecInvalidStart || isSecSingleDigitNotZero
+                ? 'border-rose-400 bg-rose-50/30 text-rose-950 focus:border-rose-500'
+                : isSecComplete
+                  ? 'border-emerald-500 bg-emerald-50/20 text-[#1c2a1c] focus:border-emerald-600'
+                  : 'border-[#d8d2c4] bg-[#fbfaf8] text-[#1c2a1c] focus:border-[#1c381c] focus:bg-white'
+                }`}
             />
+
+            {/* Validation & Feedback messages */}
+            {(isSecInvalidStart || isSecSingleDigitNotZero) && (
+              <p className="text-xs text-rose-600 font-medium flex items-center gap-1.5 mt-1">
+                {t.contactTab.phoneWarningStart || 'Numara "05" ile başlamalıdır (Örn: 05344402028)'}
+              </p>
+            )}
+
+            {isSecIncomplete && (
+              <p className="text-xs text-amber-700 font-medium flex items-center gap-1.5 mt-1">
+                {lang === 'tr' ? `11 haneli olmalıdır (${trimmedSec.length}/11)` : `Must be 11 digits (${trimmedSec.length}/11)`}
+              </p>
+            )}
+
+            {isSecEmpty && (
+              <p className="text-[11px] text-[#718771] mt-1">
+                {lang === 'tr' ? 'İsteğe bağlı. Boş bırakılırsa ana numara kullanılır.' : 'Optional. If blank, main number is used.'}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {t.contactTab.addressTr}
-            </label>
-            <textarea
-              rows={3}
-              value={contact.addressTr}
-              onChange={(e) => onUpdateContact({ addressTr: e.target.value })}
-              placeholder="Atatürk Bulvarı No:42, Karaköprü, Şanlıurfa"
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl p-3 text-sm text-[#1c2a1c] outline-none"
-            />
-          </div>
+        {/* Email */}
+        <div>
+          <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
+            {t.contactTab.email}
+          </label>
+          <input
+            type="email"
+            value={contact.email}
+            onChange={(e) => onUpdateContact({ email: e.target.value.trim().toLowerCase() })}
+            placeholder="info@botaniqacafe.com"
+            className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
+          />
+        </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
-              {t.contactTab.addressEn}
-            </label>
-            <textarea
-              rows={3}
-              value={contact.addressEn}
-              onChange={(e) => onUpdateContact({ addressEn: e.target.value })}
-              placeholder="Atatürk Boulevard No:42, Karaköprü, Şanlıurfa"
-              className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl p-3 text-sm text-[#1c2a1c] outline-none"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-bold text-[#445844] uppercase tracking-wider mb-1.5">
+            {t.contactTab.address || (lang === 'tr' ? 'Kafe Adresi' : 'Cafe Address')}
+          </label>
+          <textarea
+            rows={3}
+            value={contact.addressTr || contact.addressEn || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              onUpdateContact({
+                addressTr: val,
+                addressEn: val,
+              });
+            }}
+            placeholder={
+              lang === 'tr'
+                ? '50 metre yolu üzeri Cadının evi yukarısı, Karaköprü, Şanlıurfa'
+                : '50 metre yolu üzeri Cadının evi yukarısı, Karaköprü, Şanlıurfa'
+            }
+            className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl p-3.5 text-sm text-[#1c2a1c] outline-none leading-relaxed"
+          />
         </div>
 
         <div className="space-y-5 pt-4 border-t border-[#f0ece1]">

@@ -24,7 +24,7 @@ export default function Footer() {
   const contact = cafeData.contact;
   const socials = cafeData.socials;
   const currentYear = new Date().getFullYear();
-  const addressText = lang === 'tr' ? contact.addressTr : contact.addressEn;
+  const addressText = lang === 'tr' ? (contact.addressTr || contact.addressEn) : (contact.addressEn || contact.addressTr);
 
   return (
     <footer className="bg-[#0f1f0f] text-[#8bbf8b]">
@@ -147,10 +147,10 @@ export default function Footer() {
                   <Mail className="w-4 h-4" />
                 </a>
               )}
-              {contact.phone?.trim() && (
+              {(contact.phone?.trim() || contact.phoneSecondary?.trim()) && (
                 <a
                   id="footer-phone"
-                  href={`tel:${contact.phoneRaw || contact.phone.replace(/\s+/g, '')}`}
+                  href={`tel:${(contact.phone?.trim() || contact.phoneSecondary || '').replace(/[^0-9+]/g, '')}`}
                   aria-label="Botaniqa Telefon"
                   className="w-10 h-10 rounded-full bg-[#1e3a1e] border border-[#2d4a2d] hover:border-[#8bbf8b] hover:bg-[#4a7a4a]/10 text-[#6a9e6a] hover:text-[#8bbf8b] flex items-center justify-center transition-all duration-300"
                 >
@@ -194,12 +194,27 @@ export default function Footer() {
                   </a>
                 </div>
               )}
-              {contact.phone?.trim() && (
+              {(contact.phone?.trim() || contact.phoneSecondary?.trim()) && (
                 <div>
                   <div className="text-[#4a7a4a] text-xs uppercase tracking-widest mb-1">{f.phone}</div>
-                  <a href={`tel:${contact.phoneRaw || contact.phone.replace(/\s+/g, '')}`} className="text-[#6a9e6a] hover:text-[#b8d9b8] text-sm transition-colors">
-                    {contact.phone}
-                  </a>
+                  <div className="flex flex-col gap-1.5">
+                    {contact.phone?.trim() && (
+                      <a
+                        href={`tel:${contact.phone.replace(/[^0-9+]/g, '')}`}
+                        className="text-[#6a9e6a] hover:text-[#b8d9b8] text-sm transition-colors block"
+                      >
+                        {contact.phone}
+                      </a>
+                    )}
+                    {contact.phoneSecondary?.trim() && (
+                      <a
+                        href={`tel:${contact.phoneSecondary.replace(/[^0-9+]/g, '')}`}
+                        className="text-[#6a9e6a] hover:text-[#b8d9b8] text-sm transition-colors block"
+                      >
+                        {contact.phoneSecondary}
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
               {addressText?.trim() && (

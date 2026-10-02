@@ -78,8 +78,16 @@ const GALLERY_SLOT_DEFS = [
   },
   {
     slot: 6,
-    labelTr: 'Slot #6 — Kare (Sağ Alt)',
-    labelEn: 'Slot #6 — Square (Bottom Right)',
+    labelTr: 'Slot #6 — Kare (Alt 2)',
+    labelEn: 'Slot #6 — Square (Bottom 2)',
+    aspect: 'aspect-square',
+    descTr: 'Alt orta kare vitrin fotoğrafı (1:1)',
+    descEn: 'Bottom-middle square showcase photo (1:1)',
+  },
+  {
+    slot: 7,
+    labelTr: 'Slot #7 — Kare (Alt 3)',
+    labelEn: 'Slot #7 — Square (Bottom 3)',
     aspect: 'aspect-square',
     descTr: 'Sağ alt köşe kare vitrin fotoğrafı (1:1)',
     descEn: 'Bottom-right square showcase photo (1:1)',
@@ -570,7 +578,7 @@ export default function GalleryTab({
         </span>
       </div>
 
-      {/* 6 Fixed Slotted Cards */}
+      {/* 7 Fixed Slotted Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {GALLERY_SLOT_DEFS.map((def) => {
           const slotNumber = def.slot;

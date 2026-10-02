@@ -16,8 +16,8 @@ export default function About() {
   const { data: cafeData } = useCafeData();
   const a = t.about;
 
-  const primaryImage = cafeData?.aboutImage || '/cafe_interior.jpg';
-  const secondaryImage = cafeData?.aboutSecondaryImage || '/gallery_1.jpg';
+  const primaryImage = cafeData?.aboutImage || '/cafe_interior.webp';
+  const secondaryImage = cafeData?.aboutSecondaryImage || '/gallery_1.webp';
 
   return (
     <section id="about" className="pt-12 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-14 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
@@ -53,12 +53,12 @@ export default function About() {
           {/* Overlapping Multi-Layer Image Architecture (7 cols) */}
           <div className="lg:col-span-7 relative pb-4 sm:pb-0">
             {/* Primary architectural photo */}
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group bg-[#e8dfd0]">
               <Image
                 src={primaryImage}
                 alt="botaniqa kafe atmosferi — asılı bitkiler ve sıcak botanik ışık"
                 fill
-                priority
+                unoptimized={primaryImage.startsWith('data:') || primaryImage.includes('urfamenu.com')}
                 className="object-cover object-center group-hover:scale-103 transition-transform duration-700 ease-out"
                 sizes="(max-width: 1024px) 100vw, 60vw"
               />
@@ -66,11 +66,12 @@ export default function About() {
             </div>
 
             {/* Overlapping Secondary Vignette Photo (Offset off-center) */}
-            <div className="block absolute -bottom-6 right-2 sm:-bottom-10 sm:right-auto sm:-right-6 lg:-right-10 w-36 h-44 sm:w-52 sm:h-64 md:w-60 md:h-72 rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-[#fcfaf5] shadow-[0_12px_28px_rgba(0,0,0,0.18)] sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group">
+            <div className="block absolute -bottom-6 right-2 sm:-bottom-10 sm:right-auto sm:-right-6 lg:-right-10 w-36 h-44 sm:w-52 sm:h-64 md:w-60 md:h-72 rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-[#fcfaf5] shadow-[0_12px_28px_rgba(0,0,0,0.18)] sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group bg-[#e8dfd0]">
               <Image
                 src={secondaryImage}
                 alt="Botanik kahve sunumu"
                 fill
+                unoptimized={secondaryImage.startsWith('data:') || secondaryImage.includes('urfamenu.com')}
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 640px) 150px, 240px"
               />

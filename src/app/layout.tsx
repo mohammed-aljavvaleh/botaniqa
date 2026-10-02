@@ -85,6 +85,31 @@ export default async function RootLayout({
 
   return (
     <html lang="tr" className="scroll-smooth">
+      <head>
+        {/*
+          Preload all static images used on the landing page.
+          This fires immediately when the HTML is parsed — before JS, before scroll —
+          so every image is in browser cache by the time the user reaches its section.
+          Also prevents the "reload on scroll back" flicker on mobile.
+        */}
+        {/* Hero fallback (shown when no video, or as video poster) */}
+        <link rel="preload" as="image" href="/hero_coffee.webp" />
+        {/* About section images */}
+        <link rel="preload" as="image" href="/cafe_interior.webp" />
+        <link rel="preload" as="image" href="/gallery_1.webp" />
+        {/* Gallery section — remaining slots */}
+        <link rel="preload" as="image" href="/gallery_2.webp" />
+        <link rel="preload" as="image" href="/gallery_3.webp" />
+        <link rel="preload" as="image" href="/gallery_4.webp" />
+        <link rel="preload" as="image" href="/gallery_5.webp" />
+        {/* Menu teaser cards */}
+        <link rel="preload" as="image" href="/images/menu/coffee.webp" />
+        <link rel="preload" as="image" href="/images/menu/pastries.webp" />
+        <link rel="preload" as="image" href="/images/menu/cold-drinks.webp" />
+        <link rel="preload" as="image" href="/images/menu/nargile.webp" />
+        {/* Menu card placeholder logo (used on /menu page, small so cheap) */}
+        <link rel="preload" as="image" href="/botaniqa-logo.webp" />
+      </head>
       <body className="antialiased">
         <CafeDataProvider initialData={serverData}>
           <LanguageProvider>{children}</LanguageProvider>

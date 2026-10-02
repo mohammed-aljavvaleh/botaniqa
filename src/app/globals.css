@@ -39,7 +39,9 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #0e1b0e;
+  /* Must match body bg — a mismatch causes the white/dark flash on mobile
+     when the browser composites the html layer during fast scrolls / overscroll */
+  background-color: #fcfaf5;
 }
 
 body {
@@ -48,6 +50,8 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Prevent iOS Safari overscroll bounce from revealing html background */
+  overscroll-behavior: none;
 }
 
 .font-serif {

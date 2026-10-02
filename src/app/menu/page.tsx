@@ -4,8 +4,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  Search,
-  X,
   ArrowLeft,
   Sparkles,
   LeafyGreen,
@@ -108,17 +106,34 @@ export default function MenuPage() {
   const m = t.menu;
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      setShowScrollTop(window.scrollY > 300);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleCategorySelect = (catId: string) => {
+    const el = document.getElementById('menu-categories');
+    if (el) {
+      const targetY = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 80);
+      if (window.scrollY > targetY + 30) {
+        window.scrollTo({ top: targetY, behavior: 'instant' });
+      }
+    }
+    setSelectedCategory(catId);
+    requestAnimationFrame(() => {
+      const updatedEl = document.getElementById('menu-categories');
+      if (updatedEl) {
+        const finalY = Math.max(0, updatedEl.getBoundingClientRect().top + window.scrollY - 80);
+        window.scrollTo({ top: finalY, behavior: 'smooth' });
+      }
+    });
+  };
 
   // Dynamic categories from admin or fallback
   const categories = useMemo(() => {
@@ -151,7 +166,7 @@ export default function MenuPage() {
     }));
   }, [cafeData?.menu, lang]);
 
-  // Filtered items based on category, search, and tag
+  // Filtered items based on category and tag
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
       // Category filter
@@ -164,20 +179,9 @@ export default function MenuPage() {
         return false;
       }
 
-      // Search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = item.name.toLowerCase().includes(q);
-        const matchesDesc = item.desc?.toLowerCase().includes(q);
-        const matchesTag = item.tag?.toLowerCase().includes(q);
-        if (!matchesName && !matchesDesc && !matchesTag) {
-          return false;
-        }
-      }
-
       return true;
     });
-  }, [allItems, selectedCategory, selectedTag, searchQuery]);
+  }, [allItems, selectedCategory, selectedTag]);
 
   // Available tags in current selection for quick chips
   const tagsList = useMemo(() => {
@@ -268,78 +272,56 @@ export default function MenuPage() {
         </div>
       </section>
 
-      {/* ── Sticky Category & Search Navigation Bar ────────────────── */}
-      <section className="sticky top-16 sm:top-20 z-40 bg-[#fcfbfa]/95 backdrop-blur-xl border-y border-[#e8e4da] shadow-xs transition-all">
+      {/* ── Category Navigation Bar ──────────────────────── */}
+      <section id="menu-categories" className="relative z-10 bg-[#fcfbfa] border-y border-[#e8e4da] shadow-xs scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 sm:py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-3.5">
-            {/* Horizontal Category Pill Tabs */}
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto w-full md:w-auto pb-1 sm:pb-0 scrollbar-none">
-              {/* "All" Pill */}
-              <button
-                onClick={() => setSelectedCategory('all')}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer ${selectedCategory === 'all'
-                    ? 'bg-[#1c381c] text-white shadow-md shadow-[#1c381c]/25'
-                    : 'bg-[#f2efe9] text-[#4d634d] hover:bg-[#e7e3d8] hover:text-[#1c381c]'
-                  }`}
-              >
-                {m.filterAll} ({allItems.length})
-              </button>
+          {/* Category Pill Cloud (Wrapped, No Off-Screen Overflow) */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 w-full">
+            {/* "All" Pill */}
+            <button
+              onClick={() => handleCategorySelect('all')}
+              className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide transition-all cursor-pointer ${
+                selectedCategory === 'all'
+                  ? 'bg-[#1c381c] text-white shadow-md shadow-[#1c381c]/25 ring-1 ring-[#1c381c]'
+                  : 'bg-[#f2efe9] text-[#4d634d] hover:bg-[#e7e3d8] hover:text-[#1c381c]'
+              }`}
+            >
+              {m.filterAll} ({allItems.length})
+            </button>
 
-              {/* Dynamic Category Pills */}
-              {categories.map((cat) => {
-                const count = allItems.filter((it) => it.category === cat.id).length;
-                const isSelected = selectedCategory === cat.id;
+            {/* Dynamic Category Pills */}
+            {categories.map((cat) => {
+              const count = allItems.filter((it) => it.category === cat.id).length;
+              const isSelected = selectedCategory === cat.id;
 
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${isSelected
-                        ? 'bg-[#1c381c] text-white font-semibold shadow-md shadow-[#1c381c]/25'
-                        : 'bg-[#f2efe9] text-[#4d634d] hover:bg-[#e7e3d8] hover:text-[#1c381c]'
-                      }`}
-                  >
-                    <span>{cat.label}</span>
-                    {count > 0 && (
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${isSelected
-                            ? 'bg-white/25 text-white'
-                            : 'bg-[#e2ddd0] text-[#556b55]'
-                          }`}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Live Search Box */}
-            <div className="relative w-full md:w-72">
-              <Search className="w-4 h-4 text-[#728a72] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={m.searchPlaceholder}
-                className="w-full bg-white border border-[#ded8cc] focus:border-[#1c381c] focus:ring-1 focus:ring-[#1c381c]/20 rounded-full pl-9 pr-9 py-2 text-base sm:text-sm text-[#1c2a1c] placeholder:text-[#9faaa0] outline-none shadow-2xs transition-all"
-              />
-              {searchQuery && (
+              return (
                 <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b9e8b] hover:text-[#1c2a1c] p-0.5"
-                  aria-label="Aramayı temizle"
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all cursor-pointer ${isSelected
+                      ? 'bg-[#1c381c] text-white font-semibold shadow-md shadow-[#1c381c]/25 ring-1 ring-[#1c381c]'
+                      : 'bg-[#f2efe9] text-[#4d634d] hover:bg-[#e7e3d8] hover:text-[#1c381c]'
+                    }`}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <span>{cat.label}</span>
+                  {count > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${isSelected
+                          ? 'bg-white/25 text-white'
+                          : 'bg-[#e2ddd0] text-[#556b55]'
+                        }`}
+                    >
+                      {count}
+                    </span>
+                  )}
                 </button>
-              )}
-            </div>
+              );
+            })}
           </div>
 
-          {/* Quick Tag Filter Chips (if tags exist) */}
+          {/* Quick Tag Filter Chips (Wrapped) */}
           {tagsList.length > 0 && (
-            <div className="flex items-center gap-1.5 pt-2.5 overflow-x-auto scrollbar-none">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 mt-3 border-t border-[#eae5d8]">
               <span className="text-[11px] font-semibold text-[#667d66] uppercase tracking-wider mr-1">
                 {lang === 'tr' ? 'Filtrele:' : 'Filter:'}
               </span>
@@ -351,7 +333,7 @@ export default function MenuPage() {
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(isSelected ? null : tag)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer whitespace-nowrap ${isSelected
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium tracking-wide transition-all cursor-pointer ${isSelected
                         ? 'bg-[#c1713a] text-white shadow-xs'
                         : 'bg-white border border-[#ded8cb] text-[#556955] hover:border-[#b0c4b0]'
                       }`}
@@ -369,7 +351,7 @@ export default function MenuPage() {
               {selectedTag && (
                 <button
                   onClick={() => setSelectedTag(null)}
-                  className="text-xs text-[#c1713a] hover:underline ml-1 font-medium whitespace-nowrap cursor-pointer"
+                  className="text-xs text-[#c1713a] hover:underline ml-1 font-medium cursor-pointer"
                 >
                   {lang === 'tr' ? 'Filtreyi Temizle' : 'Clear Filter'}
                 </button>
@@ -385,18 +367,17 @@ export default function MenuPage() {
           // Empty State
           <div className="py-20 text-center max-w-md mx-auto">
             <div className="w-16 h-16 rounded-full bg-[#f2efe9] text-[#758a75] mx-auto flex items-center justify-center mb-4">
-              <Search className="w-7 h-7" />
+              <Coffee className="w-7 h-7" />
             </div>
             <h3 className="text-xl font-bold text-[#1c2a1c] mb-2">{m.noResults}</h3>
             <p className="text-sm text-[#667d66] mb-6">
               {lang === 'tr'
-                ? 'Farklı bir arama terimi deneyebilir veya kategorileri sıfırlayabilirsiniz.'
-                : 'Try adjusting your search query or clear selected category filters.'}
+                ? 'Farklı bir kategori seçebilir veya filtreleri sıfırlayabilirsiniz.'
+                : 'Try selecting a different category or clearing selected filters.'}
             </p>
             <button
               onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
+                handleCategorySelect('all');
                 setSelectedTag(null);
               }}
               className="px-6 py-2.5 rounded-full bg-[#1c381c] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#274e27] transition-all cursor-pointer"
@@ -404,7 +385,7 @@ export default function MenuPage() {
               {lang === 'tr' ? 'Tüm Menüyü Göster' : 'Show All Items'}
             </button>
           </div>
-        ) : selectedCategory === 'all' && !searchQuery.trim() && !selectedTag ? (
+        ) : selectedCategory === 'all' && !selectedTag ? (
           // Grouped by Category View
           <div className="space-y-8 sm:space-y-16">
             {Array.from(itemsGroupedByCategory.entries()).map(([catId, items]) => {
@@ -412,7 +393,7 @@ export default function MenuPage() {
               const catTitle = catObj?.label || catId.toUpperCase();
 
               return (
-                <section key={catId} id={`cat-${catId}`} className="scroll-mt-36">
+                <section key={catId} id={`cat-${catId}`} className="scroll-mt-24 sm:scroll-mt-28">
                   {/* Category Header with Aesthetic Botanical Line */}
                   <div className="flex items-center justify-between mb-3 sm:mb-8 pb-2 sm:pb-3 border-b border-[#e8e4da]">
                     <div>
@@ -425,7 +406,7 @@ export default function MenuPage() {
                     </div>
 
                     <button
-                      onClick={() => setSelectedCategory(catId)}
+                      onClick={() => handleCategorySelect(catId)}
                       className="text-xs font-semibold text-[#c1713a] hover:text-[#9e5525] inline-flex items-center gap-1 group cursor-pointer"
                     >
                       <span>{lang === 'tr' ? 'Yalnızca Bunu Gör' : 'Focus Category'}</span>
@@ -479,7 +460,7 @@ export default function MenuPage() {
               href="/#location"
               className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#1c381c] text-white text-[11px] sm:text-xs font-semibold uppercase tracking-wider hover:bg-[#284f28] transition-all shadow-md shadow-[#1c381c]/20"
             >
-              {lang === 'tr' ? 'Bizi Ziyaret Et & Konum' : 'Visit Us & Location'}
+              {lang === 'tr' ? 'Bizi Ziyaret Et' : 'Visit Us'}
             </Link>
             <Link
               href="/"
@@ -523,44 +504,50 @@ function MenuItemCard({
   };
   lang: 'tr' | 'en';
 }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
   const isAvailable = item.available !== false;
   const tagStyle = item.tag ? tagStyles[item.tag] : null;
 
+  useEffect(() => {
+    setImgLoaded(false);
+    setImgError(false);
+  }, [item.id, item.image]);
+
   return (
     <div
-      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-2.5 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${!isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
-        }`}
+      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-2.5 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${
+        !isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
+      }`}
     >
       <div>
-        {/* Item Image or Fallback Cafe Logo */}
-        <div className="relative w-full h-24 xs:h-28 sm:h-44 mb-2 sm:mb-4 rounded-xl overflow-hidden bg-[#0d1c0d]">
-          {item.image && !imgError ? (
+        {/* Item Image with Default Cafe Logo as Base */}
+        <div className="relative w-full aspect-square mb-2.5 sm:mb-4 rounded-xl overflow-hidden bg-[#0d1c0d]">
+          {/* Default Layer: Official Botaniqa Cafe Logo (Always instantly displayed) */}
+          <Image
+            src="/botaniqa-logo.webp"
+            alt="Botaniqa Café"
+            fill
+            loading="lazy"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+          />
+
+          {/* Product Image Layer (Fades in over cafe logo when loaded) */}
+          {item.image && !imgError && (
             <Image
               src={item.image}
               alt={item.name}
               fill
-              unoptimized={item.image.includes('urfamenu.com')}
+              loading="lazy"
+              unoptimized={item.image.includes('urfamenu.com') || item.image.startsWith('data:')}
+              onLoad={() => setImgLoaded(true)}
               onError={() => setImgError(true)}
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className={`object-cover group-hover:scale-105 transition-opacity duration-300 ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
             />
-          ) : (
-            <div className="relative w-full h-full bg-gradient-to-br from-[#132813] via-[#091509] to-[#162e16] flex flex-col items-center justify-center p-2 select-none">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(200,170,110,0.15)_0%,transparent_70%)] pointer-events-none" />
-              <div className="relative w-10 h-10 sm:w-20 sm:h-20 rounded-lg sm:rounded-2xl overflow-hidden shadow-lg border border-[#c8aa6e]/40 bg-[#023f04] group-hover:scale-105 transition-transform duration-500">
-                <Image
-                  src="/botaniqa-logo.jpg"
-                  alt="botaniqa café"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 40px, 80px"
-                />
-              </div>
-              <span className="relative mt-1 text-[8px] sm:text-[10px] font-serif tracking-[0.2em] uppercase text-[#c8aa6e] font-semibold">
-                botaniqa café
-              </span>
-            </div>
           )}
         </div>
 
@@ -573,8 +560,8 @@ function MenuItemCard({
           {item.tag && (
             <span
               className={`inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border flex-shrink-0 self-start ${tagStyle
-                  ? `${tagStyle.bg} ${tagStyle.text} ${tagStyle.border}`
-                  : 'bg-[#f4efe6] text-[#6d5a45] border-[#e4ded0]'
+                ? `${tagStyle.bg} ${tagStyle.text} ${tagStyle.border}`
+                : 'bg-[#f4efe6] text-[#6d5a45] border-[#e4ded0]'
                 }`}
             >
               {tagStyle?.dot && (

@@ -12,6 +12,7 @@ interface LogoProps {
   className?: string;
   size?: number;
   showText?: boolean;
+  priority?: boolean;
 }
 
 export default function Logo({
@@ -19,6 +20,7 @@ export default function Logo({
   className = '',
   size,
   showText = true,
+  priority = false,
 }: LogoProps) {
   // ── Full variant (showcase card) ──────────────────────────────────
   if (variant === 'full') {
@@ -35,7 +37,7 @@ export default function Logo({
             fill
             sizes={`${cardSize}px`}
             className="object-cover"
-            priority
+            priority={priority}
           />
         </div>
       </div>
@@ -56,7 +58,7 @@ export default function Logo({
           fill
           sizes={`${markSize}px`}
           className="object-cover"
-          priority
+          priority={priority}
         />
       </div>
     );
@@ -78,7 +80,7 @@ export default function Logo({
           fill
           sizes={`${emblemSize}px`}
           className="object-cover"
-          priority
+          priority={priority}
         />
       </div>
 

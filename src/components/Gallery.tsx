@@ -14,45 +14,53 @@ const MASONRY_SLOTS = [
     labelTr: 'Büyük Vitrin (Hero)',
     labelEn: 'Large Hero (2x2)',
     className: 'col-span-2 row-span-2',
-    aspectClass: 'aspect-[4/3]',
+    aspectClass: 'aspect-[4/3] sm:aspect-auto sm:h-full min-h-[280px]',
     mobileClass: 'col-span-2 aspect-video',
   },
   {
     slot: 2,
-    labelTr: 'Kare (Üst Orta)',
-    labelEn: 'Square (Top Mid)',
+    labelTr: 'Kare (Üst 1)',
+    labelEn: 'Square (Top 1)',
     className: 'col-span-1 row-span-1',
     aspectClass: 'aspect-square',
     mobileClass: 'col-span-1 aspect-square',
   },
   {
     slot: 3,
-    labelTr: 'Kare (Üst Sağ)',
-    labelEn: 'Square (Top Right)',
+    labelTr: 'Kare (Üst 2)',
+    labelEn: 'Square (Top 2)',
     className: 'col-span-1 row-span-1',
     aspectClass: 'aspect-square',
     mobileClass: 'col-span-1 aspect-square',
   },
   {
     slot: 4,
-    labelTr: 'Kare (Sol Alt)',
-    labelEn: 'Square (Bottom Left)',
+    labelTr: 'Kare (Üst 3)',
+    labelEn: 'Square (Top 3)',
     className: 'col-span-1 row-span-1',
     aspectClass: 'aspect-square',
     mobileClass: 'col-span-1 aspect-square',
   },
   {
     slot: 5,
-    labelTr: 'Kare (Alt Orta)',
-    labelEn: 'Square (Bottom Mid)',
+    labelTr: 'Kare (Alt 1)',
+    labelEn: 'Square (Bottom 1)',
     className: 'col-span-1 row-span-1',
     aspectClass: 'aspect-square',
     mobileClass: 'col-span-1 aspect-square',
   },
   {
     slot: 6,
-    labelTr: 'Kare (Sağ Alt)',
-    labelEn: 'Square (Bottom Right)',
+    labelTr: 'Kare (Alt 2)',
+    labelEn: 'Square (Bottom 2)',
+    className: 'col-span-1 row-span-1',
+    aspectClass: 'aspect-square',
+    mobileClass: 'col-span-1 aspect-square',
+  },
+  {
+    slot: 7,
+    labelTr: 'Kare (Alt 3)',
+    labelEn: 'Square (Bottom 3)',
     className: 'col-span-1 row-span-1',
     aspectClass: 'aspect-square',
     mobileClass: 'col-span-1 aspect-square',
@@ -110,8 +118,8 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* Desktop masonry (Always 6 fixed anchored slots) */}
-        <div className="hidden sm:grid grid-cols-3 gap-4 lg:gap-5">
+        {/* Desktop masonry (Always 7 fixed anchored slots in balanced 5-col 2-row layout) */}
+        <div className="hidden sm:grid grid-cols-5 gap-3.5 lg:gap-4.5">
           {slots.map((slot) => {
             const slotNumber = slot.slotNumber;
 
@@ -130,6 +138,7 @@ export default function Gallery() {
                     src={slot.photo.src}
                     alt={altText}
                     fill
+                    unoptimized={slot.photo.src.startsWith('data:') || slot.photo.src.includes('urfamenu.com')}
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-600 ease-out"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
@@ -192,6 +201,7 @@ export default function Gallery() {
                     src={slot.photo.src}
                     alt={altText}
                     fill
+                    unoptimized={slot.photo.src.startsWith('data:') || slot.photo.src.includes('urfamenu.com')}
                     className="object-cover object-center"
                     sizes="50vw"
                   />

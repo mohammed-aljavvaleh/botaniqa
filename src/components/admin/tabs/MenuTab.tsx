@@ -153,31 +153,24 @@ export default function MenuTab({
               className="bg-white border border-[#e8e4da] hover:border-[#c8aa6e] hover:shadow-md transition-all duration-200 rounded-2xl p-5 flex flex-col justify-between group shadow-xs"
             >
               <div>
-                {/* Product Image or Logo Fallback */}
+                {/* Product Image or Logo Default */}
                 <div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 bg-[#0d1c0d] border border-[#e4ded2]">
-                  {item.image ? (
+                  {/* Default Logo Base */}
+                  <Image
+                    src="/botaniqa-logo.jpg"
+                    alt="Botaniqa Café"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 300px"
+                  />
+                  {item.image && (
                     <Image
                       src={item.image}
                       alt={item.nameTr}
                       fill
-                      unoptimized={item.image.includes('urfamenu.com')}
+                      unoptimized={item.image.includes('urfamenu.com') || item.image.startsWith('data:')}
                       className="object-cover group-hover:scale-102 transition-transform duration-300"
                     />
-                  ) : (
-                    <div className="relative w-full h-full bg-gradient-to-br from-[#132813] via-[#091509] to-[#162e16] flex flex-col items-center justify-center p-2 select-none">
-                      <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-[#c8aa6e]/40 shadow-sm bg-[#023f04]">
-                        <Image
-                          src="/botaniqa-logo.jpg"
-                          alt="botaniqa café"
-                          fill
-                          className="object-cover"
-                          sizes="48px"
-                        />
-                      </div>
-                      <span className="text-[9px] font-serif tracking-widest uppercase text-[#c8aa6e] mt-1 font-semibold">
-                        botaniqa
-                      </span>
-                    </div>
                   )}
                 </div>
 

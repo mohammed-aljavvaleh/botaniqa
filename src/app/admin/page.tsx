@@ -242,6 +242,44 @@ export default function AdminPage() {
 
   // ── Server Save & Reset ───────────────────────────────────────────
   const handleSaveAll = async () => {
+    // Validate main phone number if entered
+    if (data.contact?.phone) {
+      const digits = data.contact.phone.replace(/\D/g, '');
+      if (digits.length > 0) {
+        const isComplete =
+          (digits.startsWith('05') && digits.length === 11) ||
+          (digits.startsWith('905') && digits.length === 12);
+        if (!isComplete) {
+          showToast(
+            lang === 'tr'
+              ? 'Ana telefon numarası "05" ile başlamalı ve 11 haneli olmalıdır (Örn: 05344402028)'
+              : 'Main phone number must start with 05 and be 11 digits (e.g. 05344402028)',
+            'error'
+          );
+          return;
+        }
+      }
+    }
+
+    // Validate secondary phone number if entered
+    if (data.contact?.phoneSecondary) {
+      const digits = data.contact.phoneSecondary.replace(/\D/g, '');
+      if (digits.length > 0) {
+        const isComplete =
+          (digits.startsWith('05') && digits.length === 11) ||
+          (digits.startsWith('905') && digits.length === 12);
+        if (!isComplete) {
+          showToast(
+            lang === 'tr'
+              ? 'İkinci telefon numarası "05" ile başlamalı ve 11 haneli olmalıdır (Örn: 05344402028)'
+              : 'Secondary phone number must start with 05 and be 11 digits (e.g. 05344402028)',
+            'error'
+          );
+          return;
+        }
+      }
+    }
+
     const success = await saveToServer();
     if (success) {
       showToast(t.toasts.saved);
