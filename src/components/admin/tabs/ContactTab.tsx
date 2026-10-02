@@ -17,12 +17,14 @@ interface ContactTabProps {
     embedUrl: string;
   };
   onUpdateContact: (updates: Partial<ContactTabProps['contact']>) => void;
+  onSaveToServer: () => Promise<boolean>;
   lang: 'tr' | 'en';
 }
 
 export default function ContactTab({
   contact,
   onUpdateContact,
+  onSaveToServer,
   lang,
 }: ContactTabProps) {
   const t = adminTranslations[lang];

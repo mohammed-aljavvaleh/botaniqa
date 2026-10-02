@@ -241,53 +241,7 @@ export default function AdminPage() {
   };
 
   // ── Server Save & Reset ───────────────────────────────────────────
-  const handleSaveAll = async () => {
-    // Validate main phone number if entered
-    if (data.contact?.phone) {
-      const digits = data.contact.phone.replace(/\D/g, '');
-      if (digits.length > 0) {
-        const isComplete =
-          (digits.startsWith('05') && digits.length === 11) ||
-          (digits.startsWith('905') && digits.length === 12);
-        if (!isComplete) {
-          showToast(
-            lang === 'tr'
-              ? 'Ana telefon numarası "05" ile başlamalı ve 11 haneli olmalıdır (Örn: 05344402028)'
-              : 'Main phone number must start with 05 and be 11 digits (e.g. 05344402028)',
-            'error'
-          );
-          return;
-        }
-      }
-    }
-
-    // Validate secondary phone number if entered
-    if (data.contact?.phoneSecondary) {
-      const digits = data.contact.phoneSecondary.replace(/\D/g, '');
-      if (digits.length > 0) {
-        const isComplete =
-          (digits.startsWith('05') && digits.length === 11) ||
-          (digits.startsWith('905') && digits.length === 12);
-        if (!isComplete) {
-          showToast(
-            lang === 'tr'
-              ? 'İkinci telefon numarası "05" ile başlamalı ve 11 haneli olmalıdır (Örn: 05344402028)'
-              : 'Secondary phone number must start with 05 and be 11 digits (e.g. 05344402028)',
-            'error'
-          );
-          return;
-        }
-      }
-    }
-
-    const success = await saveToServer();
-    if (success) {
-      showToast(t.toasts.saved);
-    } else {
-      showToast(t.toasts.saveError, 'error');
-    }
-  };
-
+  // No manual save needed — all operations auto-save to server on confirm.
   const handleReset = () => {
     setDeleteModalState({
       isOpen: true,
@@ -341,7 +295,7 @@ export default function AdminPage() {
     setIsMenuModalOpen(true);
   };
 
-  const handleSaveMenuItem = (e: React.FormEvent) => {
+  const handleSaveMenuItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!modalForm.nameTr.trim() || !modalForm.price.trim()) {
       alert(lang === 'tr' ? 'Lütfen ürün adı ve fiyatını girin.' : 'Please enter item name and price.');
@@ -357,22 +311,27 @@ export default function AdminPage() {
       price: modalForm.price.trim(),
     };
 
+    let updatedMenu: MenuItemData[];
     if (editingItem) {
-      const updated = data.menu.map((m) =>
+      updatedMenu = data.menu.map((m) =>
         m.id === editingItem.id ? { ...m, ...sanitizedItem } : m
       );
-      updateMenu(updated);
+      updateMenu(updatedMenu);
       showToast(t.toasts.itemUpdated(sanitizedItem.nameTr));
     } else {
       const newItem: MenuItemData = {
         ...sanitizedItem,
         id: `m-${Date.now()}`,
       };
-      updateMenu([...data.menu, newItem]);
+      updatedMenu = [...data.menu, newItem];
+      updateMenu(updatedMenu);
       showToast(t.toasts.itemAdded(sanitizedItem.nameTr));
     }
 
     setIsMenuModalOpen(false);
+    // Auto-save to server immediately
+    const ok = await saveToServer();
+    if (!ok) showToast(t.toasts.saveError, 'error');
   };
 
   const handleDeleteMenuItem = (id: string, name: string) => {
@@ -393,11 +352,14 @@ export default function AdminPage() {
     });
   };
 
-  const handleToggleItemAvailability = (id: string) => {
+  const handleToggleItemAvailability = async (id: string) => {
     const updated = data.menu.map((m) =>
       m.id === id ? { ...m, available: m.available === false } : m
     );
     updateMenu(updated);
+    // Auto-save immediately
+    const ok = await saveToServer();
+    if (!ok) showToast(t.toasts.saveError, 'error');
   };
 
   const handleUploadMenuItemPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -445,7 +407,7 @@ export default function AdminPage() {
     setIsCategoryModalOpen(true);
   };
 
-  const handleSaveCategory = (e: React.FormEvent) => {
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryForm.labelTr.trim()) return;
 
@@ -492,6 +454,9 @@ export default function AdminPage() {
     }
 
     setIsCategoryModalOpen(false);
+    // Auto-save to server immediately
+    const ok = await saveToServer();
+    if (!ok) showToast(t.toasts.saveError, 'error');
   };
 
   const handleDeleteCategory = (catId: string, label: string) => {
@@ -628,7 +593,7 @@ export default function AdminPage() {
     }));
   };
 
-  const handleSaveHour = (e: React.FormEvent) => {
+  const handleSaveHour = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hourForm.dayTr.trim()) {
       alert(lang === 'tr' ? 'Lütfen gün aralığını girin.' : 'Please enter day range.');
@@ -681,6 +646,9 @@ export default function AdminPage() {
       showToast(t.toasts.hoursAdded);
     }
     setIsHourModalOpen(false);
+    // Auto-save to server immediately
+    const ok = await saveToServer();
+    if (!ok) showToast(t.toasts.saveError, 'error');
   };
 
   const handleDeleteHour = (id: string, day: string) => {
@@ -778,11 +746,14 @@ export default function AdminPage() {
     });
   };
 
-  const handleUpdateGalleryCaption = (slotNum: number, altTr: string, altEn: string) => {
+  const handleUpdateGalleryCaption = async (slotNum: number, altTr: string, altEn: string) => {
     const updated = (data.gallery || []).map((g) =>
       g.slot === slotNum || g.id === `slot-${slotNum}` ? { ...g, altTr, altEn } : g
     );
     updateGallery(updated);
+    // Auto-save to server immediately
+    const ok = await saveToServer();
+    if (!ok) showToast(t.toasts.saveError, 'error');
   };
 
   // ═════════════════════════════════════════════════════════════════════
@@ -847,7 +818,6 @@ export default function AdminPage() {
         <AdminHeader
           activeTab={activeTab}
           isSaving={isSaving}
-          onSaveAll={handleSaveAll}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
           lang={lang}
         />
@@ -901,6 +871,7 @@ export default function AdminPage() {
             <ContactTab
               contact={data.contact}
               onUpdateContact={updateContact}
+              onSaveToServer={saveToServer}
               lang={lang}
             />
           )}
@@ -909,6 +880,7 @@ export default function AdminPage() {
             <SocialsTab
               socials={data.socials}
               onUpdateSocials={updateSocials}
+              onSaveToServer={saveToServer}
               lang={lang}
             />
           )}

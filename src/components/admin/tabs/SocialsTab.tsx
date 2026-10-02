@@ -27,12 +27,14 @@ interface SocialsTabProps {
     googleMapsUrl?: string;
   };
   onUpdateSocials: (updates: Partial<SocialsTabProps['socials']>) => void;
+  onSaveToServer: () => Promise<boolean>;
   lang: 'tr' | 'en';
 }
 
 export default function SocialsTab({
   socials,
   onUpdateSocials,
+  onSaveToServer,
   lang,
 }: SocialsTabProps) {
   const t = adminTranslations[lang];

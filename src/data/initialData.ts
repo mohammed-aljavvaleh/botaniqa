@@ -156,8 +156,8 @@ export const defaultCategories: CategoryData[] = [
 ];
 
 export const initialCafeData: CafeStoreData = {
-  aboutImage: '/cafe_interior.jpg',
-  aboutSecondaryImage: '/gallery_1.jpg',
+  aboutImage: '/cafe_interior.webp',
+  aboutSecondaryImage: '/gallery_1.webp',
   auth: {
     username: 'bunyamin',
     passwordHash: 'botaniqa2024',

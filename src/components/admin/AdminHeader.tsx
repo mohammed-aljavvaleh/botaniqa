@@ -1,11 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import {
   Menu as MenuIcon,
-  Eye,
-  Save,
   Loader2,
   Coffee,
   Camera,
@@ -21,7 +18,6 @@ import { adminTranslations } from '@/data/adminTranslations';
 interface AdminHeaderProps {
   activeTab: AdminTab;
   isSaving: boolean;
-  onSaveAll: () => void;
   onToggleMobileSidebar: () => void;
   lang: 'tr' | 'en';
 }
@@ -38,7 +34,6 @@ const TAB_ICONS: Record<AdminTab, any> = {
 export default function AdminHeader({
   activeTab,
   isSaving,
-  onSaveAll,
   onToggleMobileSidebar,
   lang,
 }: AdminHeaderProps) {
@@ -77,31 +72,10 @@ export default function AdminHeader({
         </div>
       </div>
 
-      {/* Header Action Buttons */}
-      <div className="flex items-center gap-2.5">
-        <Link
-          href="/"
-          target="_blank"
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f5f2e9] border border-[#ded8cb] text-xs font-semibold text-[#2c442c] transition-colors cursor-pointer shadow-2xs"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          <span>{t.header.viewSite}</span>
-        </Link>
-
-        <button
-          type="button"
-          onClick={onSaveAll}
-          disabled={isSaving}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
-        >
-          {isSaving ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
-          ) : (
-            <Save className="w-3.5 h-3.5 text-white/90" />
-          )}
-          <span>{isSaving ? t.header.saving : t.header.save}</span>
-        </button>
-      </div>
+      {/* Subtle saving spinner — only visible while a save is in progress */}
+      {isSaving && (
+        <Loader2 className="w-4 h-4 animate-spin text-[#c1713a]" />
+      )}
     </header>
   );
 }
