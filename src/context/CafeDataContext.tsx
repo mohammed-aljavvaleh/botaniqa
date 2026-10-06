@@ -169,7 +169,7 @@ export function CafeDataProvider({
     }
   };
 
-  const saveToServer = async (customData?: CafeStoreData): Promise<boolean> => {
+  const saveToServer = useCallback(async (customData?: CafeStoreData): Promise<boolean> => {
     const payload = customData || latestDataRef.current;
     setIsSaving(true);
     try {
@@ -199,7 +199,7 @@ export function CafeDataProvider({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, []);
 
   const updateCategories = (newCategories: CategoryData[]) => {
     const updated = { ...latestDataRef.current, categories: newCategories };

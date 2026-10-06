@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, BookOpen } from 'lucide-react';
@@ -12,10 +12,38 @@ export default function Hero() {
   const { data } = useCafeData();
   const h = t.hero;
 
+  const [isMounted, setIsMounted] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const heroVideo = data.heroVideo;
   const isVideoEnabled = heroVideo?.enabled !== false && Boolean(heroVideo?.url);
+
+  // Ensure video reliably autoplays in modern browsers once mounted on client
+  useEffect(() => {
+    if (!isMounted || !isVideoEnabled || !heroVideo?.url) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setVideoLoaded(true);
+        })
+        .catch(() => {
+          // Handled if browser autoplay policy delays playback
+        });
+    }
+  }, [isMounted, heroVideo?.url, isVideoEnabled]);
 
   const scrollToSection = (href: string) => {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
@@ -26,10 +54,23 @@ export default function Hero() {
       id="hero"
       className="relative min-h-[92vh] sm:min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-20 sm:pt-32 sm:pb-24"
     >
-      {/* Background Media: Video or High-Res Image with Authentic Lighting Scrims */}
+      {/* Background Media: High-Res Image with Authentic Lighting Scrims */}
       <div className="absolute inset-0 overflow-hidden bg-[#0d1a0d]">
-        {isVideoEnabled && heroVideo?.url ? (
+        {/* Fallback image always active beneath so there is never a black flicker */}
+        <Image
+          src={heroVideo?.poster || "/hero_coffee.webp"}
+          alt="botaniqa kafe atmosferi — botanik sarmaşıklar ve sıcak pour over"
+          fill
+          priority
+          quality={85}
+          className="object-cover object-center scale-102"
+          sizes="100vw"
+        />
+
+        {/* Video mounts strictly AFTER hydration to eliminate any hydration mismatch */}
+        {isMounted && isVideoEnabled && heroVideo?.url ? (
           <video
+            ref={videoRef}
             key={heroVideo.url}
             src={heroVideo.url}
             poster={heroVideo.poster || '/hero_coffee.webp'}
@@ -37,23 +78,15 @@ export default function Hero() {
             muted
             loop
             playsInline
-            preload="none"
+            preload="auto"
             onLoadedData={() => setVideoLoaded(true)}
+            onCanPlay={() => setVideoLoaded(true)}
+            onPlaying={() => setVideoLoaded(true)}
             className={`w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${
               videoLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           />
-        ) : (
-          <Image
-            src="/hero_coffee.webp"
-            alt="botaniqa kafe atmosferi — botanik sarmaşıklar ve sıcak pour over"
-            fill
-            priority
-            quality={85}
-            className="object-cover object-center scale-102"
-            sizes="100vw"
-          />
-        )}
+        ) : null}
 
         {/* Multilayered ambient gradient scrims for atmospheric depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0f1d0f]/85 via-[#132413]/65 to-[#0e1b0e]/90" />

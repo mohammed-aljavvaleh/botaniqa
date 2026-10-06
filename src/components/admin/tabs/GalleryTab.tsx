@@ -230,12 +230,12 @@ export default function GalleryTab({
             </h2>
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                filledCount === 6
+                filledCount === GALLERY_SLOT_DEFS.length
                   ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
                   : 'bg-amber-100 text-amber-900 border-amber-300'
               }`}
             >
-              {filledCount} / 6 Slot Dolu
+              {filledCount} / {GALLERY_SLOT_DEFS.length} {lang === 'tr' ? 'Slot Dolu' : 'Slots Filled'}
             </span>
           </div>
           <p className="text-xs text-[#5d725d] mt-1">

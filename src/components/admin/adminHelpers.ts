@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 export type AdminTab = 'menu' | 'hours' | 'gallery' | 'contact' | 'socials' | 'security';
 
 export const TIME_OPTIONS = [
@@ -138,3 +140,70 @@ export const compressImage = (file: File): Promise<File> => {
     reader.readAsDataURL(file);
   });
 };
+
+// ─── Hybrid save manager hook ───────────────────────────────────────────────
+// Provides:
+// 1. saveNow(): Immediate save when user clicks "Değişiklikleri Kaydet"
+// 2. saveOnBlur(): Debounced auto-save (350ms) when user finishes editing a field
+// 3. saveStatus & isSaving: UI feedback ('idle' | 'saving' | 'saved' | 'error')
+
+export type SaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
+
+const SAVED_DISPLAY_MS = 2500;
+const BLUR_DEBOUNCE_MS = 350;
+
+export function useSaveManager(saveToServer: () => Promise<boolean>) {
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
+
+  const saveNow = useCallback(async (): Promise<boolean> => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+
+    setSaveStatus('saving');
+    try {
+      const ok = await saveToServer();
+      if (!isMountedRef.current) return ok;
+      setSaveStatus(ok ? 'saved' : 'error');
+
+      savedTimerRef.current = setTimeout(() => {
+        if (isMountedRef.current) setSaveStatus('idle');
+      }, SAVED_DISPLAY_MS);
+
+      return ok;
+    } catch {
+      if (isMountedRef.current) setSaveStatus('error');
+      return false;
+    }
+  }, [saveToServer]);
+
+  const saveOnBlur = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      if (!isMountedRef.current) return;
+      await saveNow();
+    }, BLUR_DEBOUNCE_MS);
+  }, [saveNow]);
+
+  return {
+    saveStatus,
+    isSaving: saveStatus === 'saving',
+    saveNow,
+    saveOnBlur,
+    triggerSave: saveNow, // alias for backwards compatibility
+  };
+}
+
+export const useDebouncedSave = useSaveManager;
+

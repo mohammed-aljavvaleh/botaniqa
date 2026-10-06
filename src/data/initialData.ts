@@ -61,6 +61,8 @@ export interface SocialsData {
   youtubeUrl?: string;
   tripadvisorUrl?: string;
   googleMapsUrl?: string;
+  /** Google Place ID used to fetch live rating & review count via Places API */
+  googlePlaceId?: string;
 }
 
 export interface AdminAuthData {
@@ -185,6 +187,7 @@ export const initialCafeData: CafeStoreData = {
     youtubeUrl: '',
     tripadvisorUrl: '',
     googleMapsUrl: 'https://maps.app.goo.gl/ZviCM2js2bHiWS7cA',
+    googlePlaceId: '',
   },
   heroVideo: {
     url: '/uploads/1790808304676-Botaniqa_Cafe_Olarak_Ac__k_Havan_n_Oyun_Keyfinin_Tad_n__C__karman_z_I_c_in_Sizleri_Botaniqa_Cafeye_B.mp4',

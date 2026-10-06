@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   Menu as MenuIcon,
+  Eye,
+  Save,
   Loader2,
   Coffee,
   Camera,
@@ -72,10 +75,26 @@ export default function AdminHeader({
         </div>
       </div>
 
-      {/* Subtle saving spinner — only visible while a save is in progress */}
-      {isSaving && (
-        <Loader2 className="w-4 h-4 animate-spin text-[#c1713a]" />
-      )}
+      {/* Header Action Buttons */}
+      <div className="flex items-center gap-2.5">
+        <Link
+          href="/"
+          target="_blank"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f5f2e9] border border-[#ded8cb] text-xs font-semibold text-[#2c442c] transition-colors cursor-pointer shadow-2xs"
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>{t.header.viewSite}</span>
+        </Link>
+
+        {/* Subtle saving indicator — only visible while a save/upload is in progress */}
+        {isSaving && (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium animate-pulse">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#c1713a]" />
+            <span className="hidden sm:inline">{t.header.saving}</span>
+          </div>
+        )}
+      </div>
     </header>
   );
 }
+

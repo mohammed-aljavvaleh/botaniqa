@@ -241,7 +241,6 @@ export default function AdminPage() {
   };
 
   // ── Server Save & Reset ───────────────────────────────────────────
-  // No manual save needed — all operations auto-save to server on confirm.
   const handleReset = () => {
     setDeleteModalState({
       isOpen: true,
@@ -712,11 +711,16 @@ export default function AdminPage() {
         }
 
         updateGallery(updatedGallery);
-        showToast(
-          lang === 'tr'
-            ? `Fotoğraf Slot #${targetSlot}'e başarıyla yüklendi!`
-            : `Photo uploaded to Slot #${targetSlot} successfully!`
-        );
+        const ok = await saveToServer();
+        if (ok) {
+          showToast(
+            lang === 'tr'
+              ? `Fotoğraf Slot #${targetSlot}'e başarıyla yüklendi!`
+              : `Photo uploaded to Slot #${targetSlot} successfully!`
+          );
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
       } else {
         showToast(json.error || 'Yükleme başarısız', 'error');
       }
@@ -740,8 +744,13 @@ export default function AdminPage() {
           (g) => g.id !== id && g.slot !== slotNum
         );
         updateGallery(updated);
+        const ok = await saveToServer();
         setDeleteModalState((prev) => ({ ...prev, isOpen: false, isDeleting: false }));
-        showToast(lang === 'tr' ? `Slot #${slotNum} temizlendi.` : `Slot #${slotNum} cleared.`);
+        if (ok) {
+          showToast(lang === 'tr' ? `Slot #${slotNum} temizlendi.` : `Slot #${slotNum} cleared.`);
+        } else {
+          showToast(t.toasts.saveError, 'error');
+        }
       },
     });
   };

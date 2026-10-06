@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Info } from 'lucide-react';
+import { Info, Loader2, CheckCircle2, AlertCircle, Save } from 'lucide-react';
 import {
   SiInstagram,
   SiWhatsapp,
@@ -13,6 +13,7 @@ import {
   SiGooglemaps,
 } from 'react-icons/si';
 import { adminTranslations } from '@/data/adminTranslations';
+import { useSaveManager } from '@/components/admin/adminHelpers';
 
 interface SocialsTabProps {
   socials: {
@@ -25,6 +26,7 @@ interface SocialsTabProps {
     youtubeUrl?: string;
     tripadvisorUrl?: string;
     googleMapsUrl?: string;
+    googlePlaceId?: string;
   };
   onUpdateSocials: (updates: Partial<SocialsTabProps['socials']>) => void;
   onSaveToServer: () => Promise<boolean>;
@@ -38,6 +40,7 @@ export default function SocialsTab({
   lang,
 }: SocialsTabProps) {
   const t = adminTranslations[lang];
+  const { saveStatus, isSaving, saveNow, saveOnBlur } = useSaveManager(onSaveToServer);
 
   // Helper to ensure clean URLs with https://
   const normalizeUrl = (val: string) => {
@@ -75,10 +78,45 @@ export default function SocialsTab({
   return (
     <section className="space-y-6 animate-fade-in max-w-4xl">
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#e8e4da] space-y-6 shadow-xs">
-        <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl sm:text-2xl font-bold text-[#1c2a1c] tracking-tight">
             {t.socialsTab.title}
           </h2>
+
+          <div className="flex items-center gap-2.5">
+            {/* Auto-save status pill */}
+            {saveStatus !== 'idle' && (
+              <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-all ${
+                saveStatus === 'saving'
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                  : saveStatus === 'saved'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {saveStatus === 'saving' && <Loader2 className="w-3 h-3 animate-spin" />}
+                {saveStatus === 'saved' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                {saveStatus === 'error' && <AlertCircle className="w-3 h-3 text-red-600" />}
+                {saveStatus === 'saving' && (t.socialsTab.saving || (lang === 'tr' ? 'Kaydediliyor…' : 'Saving…'))}
+                {saveStatus === 'saved' && (t.socialsTab.saved || (lang === 'tr' ? 'Değişiklikler Kaydedildi ✓' : 'Changes Saved ✓'))}
+                {saveStatus === 'error' && (lang === 'tr' ? 'Hata!' : 'Error!')}
+              </span>
+            )}
+
+            {/* Dedicated Save Changes button */}
+            <button
+              type="button"
+              onClick={() => saveNow()}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-98"
+            >
+              {isSaving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
+              ) : (
+                <Save className="w-3.5 h-3.5 text-white/90" />
+              )}
+              <span>{isSaving ? t.socialsTab.saving : t.socialsTab.saveBtn}</span>
+            </button>
+          </div>
         </div>
 
         {/* Notice badge */}
@@ -117,6 +155,7 @@ export default function SocialsTab({
                     }
                     onUpdateSocials(updates);
                   }
+                  saveOnBlur();
                 }}
                 placeholder="@botaniqa.coffee"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -135,6 +174,7 @@ export default function SocialsTab({
                   if (socials.instagramUrl) {
                     onUpdateSocials({ instagramUrl: normalizeUrl(socials.instagramUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://instagram.com/botaniqa.coffee"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -166,6 +206,7 @@ export default function SocialsTab({
                   if (socials.whatsappUrl) {
                     onUpdateSocials({ whatsappUrl: normalizeWhatsapp(socials.whatsappUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder={t.socialsTab.whatsappPlaceholder}
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -197,6 +238,7 @@ export default function SocialsTab({
                   if (socials.tiktokUrl) {
                     onUpdateSocials({ tiktokUrl: normalizeUrl(socials.tiktokUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://tiktok.com/@botaniqacafe"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -228,6 +270,7 @@ export default function SocialsTab({
                   if (socials.twitterUrl) {
                     onUpdateSocials({ twitterUrl: normalizeUrl(socials.twitterUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://x.com/botaniqacafe"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -259,6 +302,7 @@ export default function SocialsTab({
                   if (socials.facebookUrl) {
                     onUpdateSocials({ facebookUrl: normalizeUrl(socials.facebookUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://facebook.com/botaniqacafe"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -290,6 +334,7 @@ export default function SocialsTab({
                   if (socials.youtubeUrl) {
                     onUpdateSocials({ youtubeUrl: normalizeUrl(socials.youtubeUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://youtube.com/@botaniqa"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -321,6 +366,7 @@ export default function SocialsTab({
                   if (socials.tripadvisorUrl) {
                     onUpdateSocials({ tripadvisorUrl: normalizeUrl(socials.tripadvisorUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://tripadvisor.com/Restaurant_Review..."
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -352,12 +398,52 @@ export default function SocialsTab({
                   if (socials.googleMapsUrl) {
                     onUpdateSocials({ googleMapsUrl: normalizeUrl(socials.googleMapsUrl) });
                   }
+                  saveOnBlur();
                 }}
                 placeholder="https://maps.google.com/?q=Botaniqa"
                 className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
               />
             </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-[#445844] uppercase tracking-wider mb-1">
+                {t.socialsTab.googlePlaceId}
+              </label>
+              <input
+                type="text"
+                value={socials.googlePlaceId || ''}
+                onChange={(e) => onUpdateSocials({ googlePlaceId: e.target.value.trim() })}
+                onBlur={saveOnBlur}
+                placeholder="ChIJ..."
+                className="w-full bg-white border border-[#d8d2c4] rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none font-mono"
+              />
+              <p className="text-[10px] text-[#7a6a5a] mt-1.5 leading-relaxed">
+                {t.socialsTab.googlePlaceIdHint}
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Bottom Save Action Bar */}
+        <div className="pt-6 border-t border-[#f0ece1] flex items-center justify-between flex-wrap gap-3">
+          <span className="text-xs text-[#6e7d6e]">
+            {lang === 'tr'
+              ? 'Alanlar odak dışına çıktığında otomatik kaydedilir veya butona tıklayabilirsiniz.'
+              : 'Fields auto-save on blur, or click Save Changes.'}
+          </span>
+          <button
+            type="button"
+            onClick={() => saveNow()}
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-98"
+          >
+            {isSaving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
+            ) : (
+              <Save className="w-3.5 h-3.5 text-white/90" />
+            )}
+            <span>{isSaving ? t.socialsTab.saving : t.socialsTab.saveBtn}</span>
+          </button>
         </div>
       </div>
     </section>

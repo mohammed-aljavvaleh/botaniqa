@@ -4,12 +4,74 @@ import Image from 'next/image';
 import { Leaf, Coffee, Star, Heart, ExternalLink } from 'lucide-react';
 import { useLang } from '@/context/LanguageContext';
 import { useCafeData } from '@/context/CafeDataContext';
+import { useEffect, useState } from 'react';
 
 const pillarIcons = [
   <Leaf key="leaf" className="w-5 h-5 text-[#4a7a4a]" />,
   <Coffee key="coffee" className="w-5 h-5 text-[#c1713a]" />,
   <Heart key="sparkles" className="w-5 h-5 text-[#8b7355]" />,
 ];
+
+interface PlacesData {
+  rating: number | null;
+  userRatingsTotal: number | null;
+  name: string | null;
+  fallback?: boolean;
+}
+
+function useGooglePlacesRating(placeId?: string) {
+  const [data, setData] = useState<PlacesData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!placeId) return;
+
+    setLoading(true);
+    fetch(`/api/places?placeId=${encodeURIComponent(placeId)}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setData({
+            ...json.data,
+            fallback: Boolean(json.fallback),
+          });
+        }
+      })
+      .catch(() => {
+        // Silently fall back to static values on error
+      })
+      .finally(() => setLoading(false));
+  }, [placeId]);
+
+  return { data, loading };
+}
+
+/** Format review count: 1234 → "1.2K", <1000 → "432" */
+function formatReviewCount(count: number): string {
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K`;
+  }
+  return String(count);
+}
+
+/** Render star icons for a given rating (e.g. 4.3 → 4 full + 1 empty) */
+function StarRating({ rating }: { rating: number }) {
+  const full = Math.round(rating);
+  return (
+    <div className="flex items-center gap-0.5 text-[#c1713a]">
+      {[...Array(5)].map((_, i) =>
+        i < full ? (
+          <Star key={i} className="w-3.5 h-3.5 fill-[#c1713a]" />
+        ) : (
+          <Star key={i} className="w-3.5 h-3.5 text-[#d5cebe]" />
+        )
+      )}
+      <span className="text-xs font-bold text-[#1c381c] ml-1 font-mono">
+        {rating.toFixed(1)}
+      </span>
+    </div>
+  );
+}
 
 export default function About() {
   const { t, lang } = useLang();
@@ -18,6 +80,14 @@ export default function About() {
 
   const primaryImage = cafeData?.aboutImage || '/cafe_interior.webp';
   const secondaryImage = cafeData?.aboutSecondaryImage || '/gallery_1.webp';
+
+  const placeId = cafeData?.socials?.googlePlaceId;
+  const { data: placesData, loading: placesLoading } = useGooglePlacesRating(placeId || undefined);
+
+  // Use live data if available, otherwise fall back to static defaults
+  const displayRating = placesData?.rating ?? 4.1;
+  const displayReviewCount = placesData?.userRatingsTotal ?? null;
+  const isLive = Boolean(placesData?.rating && !placesData?.fallback && placesData?.userRatingsTotal);
 
   return (
     <section id="about" className="pt-12 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-14 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
@@ -76,33 +146,54 @@ export default function About() {
                 sizes="(max-width: 640px) 150px, 240px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-
             </div>
 
             {/* Tactile Rating Seal Badge (Links directly to Google Reviews) */}
             <a
+              suppressHydrationWarning
               href={cafeData?.socials?.googleMapsUrl || cafeData?.contact?.mapsUrl || "https://maps.app.goo.gl/ZviCM2js2bHiWS7cA"}
               target="_blank"
               rel="noopener noreferrer"
               title={lang === 'tr' ? "Google Haritalar'da Yorumları İncele" : "View Reviews on Google Maps"}
               className="group/badge absolute -top-5 sm:-top-6 -left-3 sm:-left-6 bg-white/95 backdrop-blur-md hover:bg-white rounded-2xl p-3 sm:p-4.5 shadow-xl border border-[#e4ded0] hover:border-[#c1713a]/50 z-20 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 hover:scale-102"
             >
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#264426] group-hover/badge:bg-[#1c381c] text-white flex flex-col items-center justify-center font-serif leading-none shadow-sm shrink-0 transition-colors">
-                <span className="text-base sm:text-lg font-bold">4.1</span>
-                <span className="text-[8px] sm:text-[9px] text-emerald-200 tracking-wider">
-                  {lang === 'tr' ? 'PUAN' : 'SCORE'}
-                </span>
+              {/* Score square */}
+              <div
+                suppressHydrationWarning
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#264426] group-hover/badge:bg-[#1c381c] text-white flex flex-col items-center justify-center font-serif leading-none shadow-sm shrink-0 transition-colors relative"
+              >
+                {placesLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span className="text-base sm:text-lg font-bold">{displayRating.toFixed(1)}</span>
+                    <span className="text-[8px] sm:text-[9px] text-emerald-200 tracking-wider">
+                      {lang === 'tr' ? 'PUAN' : 'SCORE'}
+                    </span>
+                  </>
+                )}
+                {/* Live indicator dot (positioned cleanly on top-right corner) */}
+                {isLive && !placesLoading && (
+                  <span
+                    title={lang === 'tr' ? 'Canlı Google verisi' : 'Live Google data'}
+                    style={{ top: '-3px', right: '-3px' }}
+                    className="absolute w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#264426] shadow-xs"
+                  />
+                )}
               </div>
-              <div>
-                <div className="flex items-center gap-0.5 text-[#c1713a]">
-                  {[...Array(4)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-[#c1713a]" />
-                  ))}
-                  <Star className="w-3.5 h-3.5 text-[#d5cebe]" />
-                  <span className="text-xs font-bold text-[#1c381c] ml-1 font-mono">4.1</span>
-                </div>
+
+              <div suppressHydrationWarning>
+                <StarRating rating={displayRating} />
                 <div className="text-[10px] sm:text-[11px] font-semibold text-[#324832] mt-1 tracking-tight group-hover/badge:text-[#c1713a] transition-colors flex items-center gap-1">
-                  <span>{a.rating}</span>
+                  {isLive && displayReviewCount !== null ? (
+                    <span>
+                      {lang === 'tr'
+                        ? `Google'da ${displayRating.toFixed(1)} · ${formatReviewCount(displayReviewCount)} Değerlendirme`
+                        : `${displayRating.toFixed(1)} on Google · ${formatReviewCount(displayReviewCount)} Reviews`}
+                    </span>
+                  ) : (
+                    <span>{a.rating}</span>
+                  )}
                   <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover/badge:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -122,7 +213,10 @@ export default function About() {
 
             {/* Bespoke Editorial Quote Card */}
             <div className="relative pt-6 border-t border-[#e2dcd0]/80">
-              <span className="font-serif text-6xl text-[#c1713a]/30 absolute -top-4 left-0 select-none leading-none">
+              <span
+                suppressHydrationWarning
+                className="font-serif text-6xl text-[#c1713a]/30 absolute -top-4 left-0 select-none leading-none"
+              >
                 “
               </span>
               <p className="font-serif text-xl sm:text-2xl italic text-[#1a2e1a] leading-snug pl-6 font-normal">

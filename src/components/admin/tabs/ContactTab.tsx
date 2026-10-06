@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Info } from 'lucide-react';
+import { Info, Loader2, CheckCircle2, AlertCircle, Save } from 'lucide-react';
 import { adminTranslations } from '@/data/adminTranslations';
+import { useSaveManager } from '@/components/admin/adminHelpers';
 
 interface ContactTabProps {
   contact: {
@@ -28,6 +29,7 @@ export default function ContactTab({
   lang,
 }: ContactTabProps) {
   const t = adminTranslations[lang];
+  const { saveStatus, isSaving, saveNow, saveOnBlur } = useSaveManager(onSaveToServer);
 
   // Helper to extract 05XXXXXXXXX for the input
   const to05Digits = (str: string): string => {
@@ -67,6 +69,7 @@ export default function ContactTab({
     }
     setPhoneInput(raw);
 
+    // Update local state only — no server request on keystroke
     onUpdateContact({
       phone: raw,
       phoneRaw: raw.startsWith('05') && raw.length === 11 ? `+90${raw.slice(1)}` : raw,
@@ -102,6 +105,7 @@ export default function ContactTab({
     }
     setPhoneSecondaryInput(raw);
 
+    // Update local state only — no server request on keystroke
     onUpdateContact({
       phoneSecondary: raw,
       phoneSecondaryRaw: raw.startsWith('05') && raw.length === 11 ? `+90${raw.slice(1)}` : raw,
@@ -115,13 +119,60 @@ export default function ContactTab({
   const isSecIncomplete = trimmedSec.startsWith('05') && trimmedSec.length < 11;
   const isSecComplete = trimmedSec.startsWith('05') && trimmedSec.length === 11;
 
+  const handleSaveNow = async () => {
+    if (isIncomplete) {
+      alert(lang === 'tr' ? 'Ana telefon numarası 11 haneli olmalıdır (05*********).' : 'Main phone number must be 11 digits.');
+      return;
+    }
+    if (isSecIncomplete) {
+      alert(lang === 'tr' ? 'İkinci telefon numarası 11 haneli olmalıdır (05*********).' : 'Secondary phone number must be 11 digits.');
+      return;
+    }
+    await saveNow();
+  };
+
   return (
     <section className="space-y-6 animate-fade-in max-w-4xl">
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#e8e4da] space-y-6 shadow-xs">
-        <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl sm:text-2xl font-bold text-[#1c2a1c] tracking-tight">
             {t.contactTab.title}
           </h2>
+
+          <div className="flex items-center gap-2.5">
+            {/* Auto-save status pill */}
+            {saveStatus !== 'idle' && (
+              <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-all ${
+                saveStatus === 'saving'
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                  : saveStatus === 'saved'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {saveStatus === 'saving' && <Loader2 className="w-3 h-3 animate-spin" />}
+                {saveStatus === 'saved' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                {saveStatus === 'error' && <AlertCircle className="w-3 h-3 text-red-600" />}
+                {saveStatus === 'saving' && (t.contactTab.saving || (lang === 'tr' ? 'Kaydediliyor…' : 'Saving…'))}
+                {saveStatus === 'saved' && (t.contactTab.saved || (lang === 'tr' ? 'Değişiklikler Kaydedildi ✓' : 'Changes Saved ✓'))}
+                {saveStatus === 'error' && (lang === 'tr' ? 'Hata!' : 'Error!')}
+              </span>
+            )}
+
+            {/* Dedicated Save Changes button */}
+            <button
+              type="button"
+              onClick={handleSaveNow}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-98"
+            >
+              {isSaving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
+              ) : (
+                <Save className="w-3.5 h-3.5 text-white/90" />
+              )}
+              <span>{isSaving ? t.contactTab.saving : t.contactTab.saveBtn}</span>
+            </button>
+          </div>
         </div>
 
         {/* Informational badge */}
@@ -199,6 +250,7 @@ export default function ContactTab({
               maxLength={11}
               value={phoneSecondaryInput}
               onChange={handlePhoneSecondaryChange}
+              onBlur={saveOnBlur}
               placeholder={t.contactTab.phonePlaceholder || "05*********"}
               className={`w-full border rounded-xl px-3.5 py-2.5 text-sm outline-none transition-colors ${isSecInvalidStart || isSecSingleDigitNotZero
                 ? 'border-rose-400 bg-rose-50/30 text-rose-950 focus:border-rose-500'
@@ -238,6 +290,7 @@ export default function ContactTab({
             type="email"
             value={contact.email}
             onChange={(e) => onUpdateContact({ email: e.target.value.trim().toLowerCase() })}
+            onBlur={saveOnBlur}
             placeholder="info@botaniqacafe.com"
             className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
           />
@@ -257,6 +310,7 @@ export default function ContactTab({
                 addressEn: val,
               });
             }}
+            onBlur={saveOnBlur}
             placeholder={
               lang === 'tr'
                 ? '50 metre yolu üzeri Cadının evi yukarısı, Karaköprü, Şanlıurfa'
@@ -280,6 +334,7 @@ export default function ContactTab({
                 if (url && !/^https?:\/\//i.test(url)) {
                   onUpdateContact({ mapsUrl: `https://${url}` });
                 }
+                saveOnBlur();
               }}
               placeholder="https://maps.google.com/?q=..."
               className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none"
@@ -310,6 +365,7 @@ export default function ContactTab({
                 const cleanUrl = match ? match[1] : val.trim();
                 onUpdateContact({ embedUrl: cleanUrl });
               }}
+              onBlur={saveOnBlur}
               placeholder='https://www.google.com/maps/embed?pb=... veya <iframe src="..." ...> yapıştırın'
               className="w-full bg-[#fbfaf8] border border-[#d8d2c4] focus:border-[#1c381c] focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-[#1c2a1c] outline-none font-mono text-xs"
             />
@@ -344,6 +400,28 @@ export default function ContactTab({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Bottom Save Action Bar */}
+        <div className="pt-6 border-t border-[#f0ece1] flex items-center justify-between flex-wrap gap-3">
+          <span className="text-xs text-[#6e7d6e]">
+            {lang === 'tr'
+              ? 'Alanlar odak dışına çıktığında otomatik kaydedilir veya butona tıklayabilirsiniz.'
+              : 'Fields auto-save on blur, or click Save Changes.'}
+          </span>
+          <button
+            type="button"
+            onClick={handleSaveNow}
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1c381c] hover:bg-[#284f28] disabled:opacity-75 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer active:scale-98"
+          >
+            {isSaving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
+            ) : (
+              <Save className="w-3.5 h-3.5 text-white/90" />
+            )}
+            <span>{isSaving ? t.contactTab.saving : t.contactTab.saveBtn}</span>
+          </button>
         </div>
       </div>
     </section>

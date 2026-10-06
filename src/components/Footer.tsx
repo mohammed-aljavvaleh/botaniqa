@@ -234,11 +234,18 @@ export default function Footer() {
           <div>
             <p>© {currentYear} BOTANİQA CAFE. {f.copyright}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-[#4d704d] font-light tracking-wider uppercase">
+          <a
+            suppressHydrationWarning
+            href="https://wa.me/905344402028"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="MBN — WhatsApp"
+            className="flex items-center gap-2 group/sig transition-all cursor-pointer"
+          >
+            <span className="text-[11px] text-[#4d704d] group-hover/sig:text-[#8bbf8b] font-light tracking-wider uppercase transition-colors">
               {lang === 'tr' ? 'Geliştirici' : 'Crafted by'}
             </span>
-            <div className="flex items-center gap-2 group/sig">
+            <div className="flex items-center gap-2">
               <span className="text-xs font-medium tracking-wider text-[#b8d9b8] group-hover/sig:text-white transition-colors font-mono">
                 MBN
               </span>
@@ -250,7 +257,7 @@ export default function Footer() {
                 className="h-8 sm:h-9 w-auto object-contain opacity-75 group-hover/sig:opacity-100 transition-all duration-300 group-hover/sig:scale-105"
               />
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </footer>
