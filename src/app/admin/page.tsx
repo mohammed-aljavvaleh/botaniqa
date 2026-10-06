@@ -196,23 +196,12 @@ export default function AdminPage() {
       // ignore network errors, use current state
     }
 
-    const validUsers = [
-      normalizeUser(authObj?.username || ''),
-      normalizeUser(data.auth?.username || ''),
-      'mohammed',
-      'admin',
-      'bunyamin',
-    ].filter(Boolean);
+    // Authoritative active credentials from server / state
+    const activeUsername = normalizeUser(authObj?.username || data.auth?.username || 'bunyamin');
+    const activePassword = cleanStr(authObj?.passwordHash || data.auth?.passwordHash || 'botaniqa2024');
 
-    const validPasswords = [
-      cleanStr(authObj?.passwordHash || ''),
-      cleanStr(data.auth?.passwordHash || ''),
-      'hello@world10',
-      'botaniqa2024',
-    ].filter(Boolean);
-
-    const userMatches = validUsers.includes(inputUser);
-    const passMatches = validPasswords.includes(inputPass);
+    const userMatches = inputUser === activeUsername;
+    const passMatches = inputPass === activePassword;
 
     if (userMatches && passMatches) {
       setIsAuthenticated(true);
