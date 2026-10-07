@@ -221,8 +221,8 @@ export default function MenuPage() {
       {/* ── Top Atmospheric Banner ─────────────────────────────────── */}
       <section className="pt-24 sm:pt-36 pb-6 sm:pb-16 bg-gradient-to-b from-[#132313] via-[#1a331a] to-[#132313] text-[#fdf8f0] relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#4a7a4a]/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-10 right-10 w-[350px] h-[350px] bg-[#c1713a]/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#4a7a4a]/20 rounded-full blur-[120px] ambient-glow pointer-events-none" />
+        <div className="absolute -bottom-10 right-10 w-[350px] h-[350px] bg-[#c1713a]/15 rounded-full blur-[100px] ambient-glow pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
           {/* Breadcrumb / Back button */}
@@ -476,7 +476,7 @@ export default function MenuPage() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-5 sm:right-8 z-40 p-3 rounded-full bg-[#1c381c]/90 hover:bg-[#1c381c] text-white shadow-xl backdrop-blur-md active:scale-95 transition-all flex items-center justify-center cursor-pointer border border-[#c8aa6e]/40"
+          className="fixed bottom-6 right-5 sm:right-8 z-40 p-3 rounded-full bg-[#1c381c]/95 sm:bg-[#1c381c]/90 text-white shadow-lg sm:backdrop-blur-md active:scale-95 transition-all flex items-center justify-center cursor-pointer border border-[#c8aa6e]/40 gpu-accelerated"
           aria-label={lang === 'tr' ? 'Yukarı Çık' : 'Scroll to Top'}
         >
           <ArrowUp className="w-5 h-5 text-[#f4eedb]" />
@@ -516,7 +516,7 @@ function MenuItemCard({
 
   return (
     <div
-      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-2.5 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between ${
+      className={`group relative bg-white border border-[#e8e4da] rounded-2xl p-2.5 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-[#1c2a1c]/5 hover:border-[#c8aa6e]/60 flex flex-col justify-between gpu-accelerated ${
         !isAvailable ? 'opacity-60 bg-[#f9f8f5]' : ''
       }`}
     >
@@ -528,7 +528,6 @@ function MenuItemCard({
             src="/botaniqa-logo.webp"
             alt="Botaniqa Café"
             fill
-            loading="lazy"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
           />
@@ -539,7 +538,6 @@ function MenuItemCard({
               src={item.image}
               alt={item.name}
               fill
-              loading="lazy"
               unoptimized={item.image.includes('urfamenu.com') || item.image.startsWith('data:')}
               onLoad={() => setImgLoaded(true)}
               onError={() => setImgError(true)}

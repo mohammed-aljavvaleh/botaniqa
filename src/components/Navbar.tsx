@@ -14,7 +14,16 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 40);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -50,10 +59,10 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 gpu-accelerated will-change-transform transition-all duration-300 ${
           scrolled
-            ? 'bg-[#142614]/85 backdrop-blur-xl border-b border-[#2b442b]/40 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.35)]'
-            : 'bg-gradient-to-b from-[#0e1b0e]/70 via-[#0e1b0e]/20 to-transparent'
+            ? 'bg-[#142614]/95 md:bg-[#142614]/85 backdrop-blur-xs md:backdrop-blur-xl border-b border-[#2b442b]/40 shadow-sm md:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.35)]'
+            : 'bg-gradient-to-b from-[#0e1b0e]/80 via-[#0e1b0e]/30 to-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8 h-18 sm:h-20 flex items-center justify-between relative">
@@ -67,6 +76,7 @@ export default function Navbar() {
               <Logo
                 variant="compact"
                 size={42}
+                priority
                 className="opacity-95 group-hover:opacity-100 transition-opacity"
               />
             </button>
@@ -184,6 +194,7 @@ export default function Navbar() {
               <Logo
                 variant="compact"
                 size={40}
+                priority
                 className="mb-2"
               />
               <p className="text-[#84b284] text-xs tracking-wider uppercase mt-2 font-mono">

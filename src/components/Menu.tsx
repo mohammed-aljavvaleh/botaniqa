@@ -79,9 +79,9 @@ export default function Menu() {
 
   return (
     <section id="menu" className="relative pt-12 pb-20 sm:py-28 bg-[#0d180d] text-white overflow-hidden">
-      {/* Ambient background glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#c1713a]/12 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[450px] h-[300px] bg-[#2d5a2d]/20 rounded-full blur-[100px] pointer-events-none" />
+      {/* Ambient background glows (zero-blur radial shader) */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[radial-gradient(ellipse,rgba(193,113,58,0.14)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[450px] h-[300px] bg-[radial-gradient(ellipse,rgba(45,90,45,0.22)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Block */}
@@ -114,13 +114,13 @@ export default function Menu() {
 
         {/* 4 Featured Category Teasers */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-12 sm:mb-14">
-          {highlights.map((card) => {
+          {highlights.map((card, idx) => {
             const Icon = card.icon;
             return (
               <Link
                 key={card.id}
                 href="/menu"
-                className="group relative bg-[#132213] border border-[#243c24] hover:border-[#c1713a]/70 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#c1713a]/10 overflow-hidden"
+                className="group relative bg-[#132213] border border-[#243c24] hover:border-[#c1713a]/70 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#c1713a]/10 overflow-hidden gpu-accelerated"
               >
                 <div>
                   {/* Photo with Overlay Badge */}
@@ -129,13 +129,14 @@ export default function Menu() {
                       src={card.image}
                       alt={lang === 'tr' ? card.titleTr : card.titleEn}
                       fill
+                      priority={idx < 2}
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       sizes="(max-width: 768px) 50vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
 
                     <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5">
-                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#132213]/85 text-[#f0caa8] border border-[#c1713a]/30 backdrop-blur-xs">
+                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#132213]/90 text-[#f0caa8] border border-[#c1713a]/30">
                         {lang === 'tr' ? card.badgeTr : card.badgeEn}
                       </span>
                     </div>
@@ -177,7 +178,7 @@ export default function Menu() {
 
         {/* Central Call-to-Action Bar */}
         <div className="relative rounded-3xl bg-gradient-to-r from-[#172c17] via-[#1b341b] to-[#172c17] border border-[#2b4c2b] p-6 sm:p-10 text-center shadow-2xl overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#c1713a]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle,rgba(193,113,58,0.12)_0%,transparent_70%)] pointer-events-none" />
 
           <div className="max-w-2xl mx-auto space-y-4">
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">

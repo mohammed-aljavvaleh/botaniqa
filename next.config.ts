@@ -35,20 +35,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Aggressive caching headers for all static assets
+  // Aggressive caching headers for all static assets in production
   async headers() {
+    if (process.env.NODE_ENV !== 'production') {
+      return [];
+    }
     return [
-      {
-        // Cache all static files (JS, CSS, images, fonts) for 1 year
-        // Next.js content-hashes these so they can be cached forever safely
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
       {
         // Cache public assets (WebP images, video poster) for 7 days
         source: '/:path((?!api/).*\\.(?:webp|jpg|png|svg|ico|woff2|woff))',

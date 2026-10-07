@@ -38,20 +38,23 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  /* Must match body bg — a mismatch causes the white/dark flash on mobile
-     when the browser composites the html layer during fast scrolls / overscroll */
-  background-color: #fcfaf5;
+  background-color: #0e1b0e;
+  overflow-x: clip;
+}
+
+/* Only enable smooth scrolling for fine pointers (mouse); touch momentum scrolling uses native hardware inertia */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
-  background-color: var(--cream-50);
+  background-color: #0e1b0e;
   color: var(--cream-900);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  /* Prevent iOS Safari overscroll bounce from revealing html background */
-  overscroll-behavior: none;
+  overflow-x: clip;
 }
 
 .font-serif {
@@ -114,10 +117,41 @@ section {
   color: var(--cream-100);
 }
 
+/* GPU Layer Promotion & Hardware Acceleration for 60/120fps mobile scrolling */
+.gpu-accelerated {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Ambient glow optimizations: isolate heavy blur filters to their own composite layer */
+.ambient-glow {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
+  contain: paint layout style;
+}
+
 /* Hero grain overlay */
 .grain-overlay {
+  display: none;
+}
+@media (min-width: 640px) {
+  .grain-overlay {
+    display: block;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  }
 }
 
 /* Float animation for hero elements */

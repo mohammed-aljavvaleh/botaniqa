@@ -91,9 +91,9 @@ export default function Gallery() {
 
   return (
     <section id="gallery" className="pt-6 sm:pt-10 md:pt-12 pb-6 sm:pb-24 md:pb-28 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/3 -left-36 w-[500px] h-[500px] bg-[#e6efe6]/60 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-0 w-[450px] h-[450px] bg-[#faeee4]/70 rounded-full blur-[130px] pointer-events-none" />
+      {/* Background ambient lighting (zero-blur radial shader) */}
+      <div className="absolute top-1/3 -left-36 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(230,239,230,0.75)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute bottom-10 right-0 w-[450px] h-[450px] bg-[radial-gradient(circle,rgba(250,238,228,0.85)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Asymmetrical Editorial Header */}
@@ -132,12 +132,13 @@ export default function Gallery() {
               return (
                 <div
                   key={`slot-${slotNumber}`}
-                  className={`${slot.layout.className} ${slot.layout.aspectClass} relative overflow-hidden rounded-3xl img-zoom group cursor-pointer border border-[#e8dfd0] shadow-[0_12px_36px_-12px_rgba(28,46,28,0.12)] bg-[#f3ede2]`}
+                  className={`${slot.layout.className} ${slot.layout.aspectClass} relative overflow-hidden rounded-3xl img-zoom group cursor-pointer border border-[#e8dfd0] shadow-sm sm:shadow-[0_12px_36px_-12px_rgba(28,46,28,0.12)] bg-[#f3ede2] gpu-accelerated`}
                 >
                   <Image
                     src={slot.photo.src}
                     alt={altText}
                     fill
+                    priority={slotNumber <= 2}
                     unoptimized={slot.photo.src.startsWith('data:') || slot.photo.src.includes('urfamenu.com')}
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-600 ease-out"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -195,12 +196,13 @@ export default function Gallery() {
               return (
                 <div
                   key={`mobile-slot-${slotNumber}`}
-                  className={`relative overflow-hidden rounded-2xl border border-[#e8dfd0] shadow-xs ${slot.layout.mobileClass}`}
+                  className={`relative overflow-hidden rounded-2xl border border-[#e8dfd0] shadow-xs ${slot.layout.mobileClass} gpu-accelerated`}
                 >
                   <Image
                     src={slot.photo.src}
                     alt={altText}
                     fill
+                    priority={slotNumber <= 2}
                     unoptimized={slot.photo.src.startsWith('data:') || slot.photo.src.includes('urfamenu.com')}
                     className="object-cover object-center"
                     sizes="50vw"

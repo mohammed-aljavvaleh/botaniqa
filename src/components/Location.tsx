@@ -15,9 +15,9 @@ export default function Location() {
 
   return (
     <section id="location" className="py-14 sm:py-28 md:py-36 bg-[#132413] text-[#fdf8f0] relative overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-[#4a7a4a]/12 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 -left-32 w-[500px] h-[500px] bg-[#c1713a]/8 rounded-full blur-[130px] pointer-events-none" />
+      {/* Background ambient lighting (zero-blur radial shader) */}
+      <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(74,122,74,0.18)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute bottom-0 -left-32 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(193,113,58,0.12)_0%,transparent_70%)] pointer-events-none" />
 
       {/* Atmospheric Top Hairline Divider */}
       <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-8 sm:mb-18">
@@ -52,7 +52,7 @@ export default function Location() {
           {/* Architectural Map Frame (7 cols) */}
           <div className="lg:col-span-7">
             {embedUrl?.trim() ? (
-              <div className="rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-[#2b4b2b] aspect-[4/3] sm:aspect-[16/11] relative group">
+              <div className="rounded-3xl overflow-hidden shadow-md sm:shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-[#2b4b2b] aspect-[4/3] sm:aspect-[16/11] relative group gpu-accelerated">
                 <iframe
                   title="botaniqa café Konum Haritası"
                   src={embedUrl}
@@ -67,7 +67,7 @@ export default function Location() {
                 <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-3xl" />
               </div>
             ) : (
-              <div className="rounded-3xl overflow-hidden shadow-2xl border border-[#2b4b2b] aspect-[4/3] sm:aspect-[16/11] relative bg-[#182c18] flex items-center justify-center p-8 text-center">
+              <div className="rounded-3xl overflow-hidden shadow-2xl border border-[#2b4b2b] aspect-[4/3] sm:aspect-[16/11] relative bg-[#182c18] flex items-center justify-center p-8 text-center gpu-accelerated">
                 <div className="space-y-3 max-w-xs">
                   <MapPin className="w-10 h-10 text-[#e8a97a] mx-auto opacity-70" />
                   <p className="text-[#a8d5a8] text-sm whitespace-pre-line leading-relaxed">
@@ -93,7 +93,7 @@ export default function Location() {
           <div className="lg:col-span-5 space-y-6">
             {/* Address & Direction Card */}
             {addressText?.trim() && (
-              <div className="p-6 rounded-3xl bg-[#162a16]/80 border border-[#294829] backdrop-blur-md space-y-4">
+              <div className="p-6 rounded-3xl bg-[#162a16] border border-[#294829] space-y-4 gpu-accelerated">
                 <div className="flex items-start gap-3.5">
                   <div className="w-10 h-10 rounded-2xl bg-[#223d22] border border-[#345934] flex items-center justify-center shrink-0 text-[#e8a97a]">
                     <MapPin className="w-5 h-5" />
@@ -127,7 +127,7 @@ export default function Location() {
 
             {/* Working Hours Ledger */}
             {cafeData.hours && cafeData.hours.length > 0 && (
-              <div className="p-6 rounded-3xl bg-[#162a16]/80 border border-[#294829] backdrop-blur-md space-y-4">
+              <div className="p-6 rounded-3xl bg-[#162a16] border border-[#294829] space-y-4 gpu-accelerated">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-2xl bg-[#223d22] border border-[#345934] flex items-center justify-center shrink-0 text-[#a8d5a8]">
                     <Clock className="w-5 h-5" />

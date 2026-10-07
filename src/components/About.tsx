@@ -91,9 +91,9 @@ export default function About() {
 
   return (
     <section id="about" className="pt-12 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-14 bg-[#fcfaf5] text-[#1c2a1c] relative overflow-hidden">
-      {/* Delicate background ambient noise & soft gradient blur */}
-      <div className="absolute top-1/3 -left-48 w-96 h-96 bg-[#e2ede2]/50 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-24 right-0 w-[500px] h-[500px] bg-[#f7ebe0]/60 rounded-full blur-[140px] pointer-events-none" />
+      {/* Delicate background ambient lighting (zero-blur radial shader) */}
+      <div className="absolute top-1/3 -left-48 w-96 h-96 bg-[radial-gradient(circle,rgba(226,237,226,0.65)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute -bottom-24 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(247,235,224,0.75)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Asymmetrical Editorial Header */}
@@ -123,11 +123,12 @@ export default function About() {
           {/* Overlapping Multi-Layer Image Architecture (7 cols) */}
           <div className="lg:col-span-7 relative pb-4 sm:pb-0">
             {/* Primary architectural photo */}
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group bg-[#e8dfd0]">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[16/11] border border-[#e8dfd0] shadow-md sm:shadow-[0_24px_60px_-15px_rgba(28,46,28,0.18)] group bg-[#e8dfd0] gpu-accelerated">
               <Image
                 src={primaryImage}
                 alt="botaniqa kafe atmosferi — asılı bitkiler ve sıcak botanik ışık"
                 fill
+                priority
                 unoptimized={primaryImage.startsWith('data:') || primaryImage.includes('urfamenu.com')}
                 className="object-cover object-center group-hover:scale-103 transition-transform duration-700 ease-out"
                 sizes="(max-width: 1024px) 100vw, 60vw"
@@ -136,11 +137,12 @@ export default function About() {
             </div>
 
             {/* Overlapping Secondary Vignette Photo (Offset off-center) */}
-            <div className="block absolute -bottom-6 right-2 sm:-bottom-10 sm:right-auto sm:-right-6 lg:-right-10 w-36 h-44 sm:w-52 sm:h-64 md:w-60 md:h-72 rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-[#fcfaf5] shadow-[0_12px_28px_rgba(0,0,0,0.18)] sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group bg-[#e8dfd0]">
+            <div className="block absolute -bottom-6 right-2 sm:-bottom-10 sm:right-auto sm:-right-6 lg:-right-10 w-36 h-44 sm:w-52 sm:h-64 md:w-60 md:h-72 rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-[#fcfaf5] shadow-md sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-20 group bg-[#e8dfd0] gpu-accelerated">
               <Image
                 src={secondaryImage}
                 alt="Botanik kahve sunumu"
                 fill
+                priority
                 unoptimized={secondaryImage.startsWith('data:') || secondaryImage.includes('urfamenu.com')}
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 640px) 150px, 240px"
@@ -155,25 +157,19 @@ export default function About() {
               target="_blank"
               rel="noopener noreferrer"
               title={lang === 'tr' ? "Google Haritalar'da Yorumları İncele" : "View Reviews on Google Maps"}
-              className="group/badge absolute -top-5 sm:-top-6 -left-3 sm:-left-6 bg-white/95 backdrop-blur-md hover:bg-white rounded-2xl p-3 sm:p-4.5 shadow-xl border border-[#e4ded0] hover:border-[#c1713a]/50 z-20 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 hover:scale-102"
+              className="group/badge absolute -top-5 sm:-top-6 -left-3 sm:-left-6 bg-white/98 sm:bg-white/95 sm:backdrop-blur-md hover:bg-white rounded-2xl p-3 sm:p-4.5 shadow-md sm:shadow-xl border border-[#e4ded0] hover:border-[#c1713a]/50 z-20 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 hover:scale-102 gpu-accelerated"
             >
               {/* Score square */}
               <div
                 suppressHydrationWarning
                 className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#264426] group-hover/badge:bg-[#1c381c] text-white flex flex-col items-center justify-center font-serif leading-none shadow-sm shrink-0 transition-colors relative"
               >
-                {placesLoading ? (
-                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span className="text-base sm:text-lg font-bold">{displayRating.toFixed(1)}</span>
-                    <span className="text-[8px] sm:text-[9px] text-emerald-200 tracking-wider">
-                      {lang === 'tr' ? 'PUAN' : 'SCORE'}
-                    </span>
-                  </>
-                )}
+                <span className="text-base sm:text-lg font-bold">{displayRating.toFixed(1)}</span>
+                <span className="text-[8px] sm:text-[9px] text-emerald-200 tracking-wider">
+                  {lang === 'tr' ? 'PUAN' : 'SCORE'}
+                </span>
                 {/* Live indicator dot (positioned cleanly on top-right corner) */}
-                {isLive && !placesLoading && (
+                {isLive && (
                   <span
                     title={lang === 'tr' ? 'Canlı Google verisi' : 'Live Google data'}
                     style={{ top: '-3px', right: '-3px' }}

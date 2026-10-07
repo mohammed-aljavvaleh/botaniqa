@@ -23,7 +23,8 @@ export default function Hero() {
   const heroVideo = data.heroVideo;
   const isVideoEnabled = heroVideo?.enabled !== false && Boolean(heroVideo?.url);
 
-  // Ensure video reliably autoplays in modern browsers once mounted on client
+  // Ensure video autoplays when visible and pauses when scrolled off-screen
+  // to free up 100% of GPU decoders and layer memory for smooth momentum scrolling
   useEffect(() => {
     if (!isMounted || !isVideoEnabled || !heroVideo?.url) return;
 
@@ -33,16 +34,28 @@ export default function Hero() {
     video.muted = true;
     video.defaultMuted = true;
 
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setVideoLoaded(true);
-        })
-        .catch(() => {
-          // Handled if browser autoplay policy delays playback
-        });
-    }
+    const playVideo = () => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setVideoLoaded(true))
+          .catch(() => {});
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          playVideo();
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
   }, [isMounted, heroVideo?.url, isVideoEnabled]);
 
   const scrollToSection = (href: string) => {
@@ -52,10 +65,10 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-[92vh] sm:min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-20 sm:pt-32 sm:pb-24"
+      className="relative min-h-[92vh] sm:min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-20 sm:pt-32 sm:pb-24 gpu-accelerated"
     >
       {/* Background Media: High-Res Image with Authentic Lighting Scrims */}
-      <div className="absolute inset-0 overflow-hidden bg-[#0d1a0d]">
+      <div className="absolute inset-0 overflow-hidden bg-[#0d1a0d] gpu-accelerated will-change-transform">
         {/* Fallback image always active beneath so there is never a black flicker */}
         <Image
           src={heroVideo?.poster || "/hero_coffee.webp"}
@@ -91,16 +104,16 @@ export default function Hero() {
         {/* Multilayered ambient gradient scrims for atmospheric depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0f1d0f]/85 via-[#132413]/65 to-[#0e1b0e]/90" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#102210]/40 to-[#0b160b]/80" />
-        {/* Soft sunlight conservatory ray */}
-        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-[#d98348]/12 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-[#3f6d3f]/15 rounded-full blur-[130px] pointer-events-none" />
+        {/* Soft sunlight conservatory ray (zero-blur radial shader for 60/120fps mobile scrolling) */}
+        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(217,131,72,0.14)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(63,109,63,0.18)_0%,transparent_70%)] pointer-events-none" />
         <div className="absolute inset-0 grain-overlay opacity-30 pointer-events-none" />
       </div>
 
       {/* Hero content */}
       <div className="relative z-10 text-center px-5 sm:px-8 max-w-4xl mx-auto flex flex-col items-center">
         {/* Location & Ethos Tag Badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#8bbf8b]/30 bg-[#162916]/60 backdrop-blur-md mb-6 shadow-sm">
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#8bbf8b]/30 bg-[#162916]/80 sm:bg-[#162916]/60 backdrop-blur-xs sm:backdrop-blur-md mb-6 shadow-xs">
           <span className="w-1.5 h-1.5 rounded-full bg-[#e8a97a] pulse-dot" />
           <span className="text-[#c2dfc2] text-xs font-mono font-medium tracking-widest uppercase">
             {h.badge}
@@ -138,7 +151,7 @@ export default function Hero() {
             href={data.contact?.mapsUrl || "https://maps.google.com/?q=Botaniqa+Cafe+Karakopru+Sanliurfa"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-full border border-white/20 hover:border-white/40 text-[#f0f6f0] hover:text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-200 bg-white/10 hover:bg-white/15 backdrop-blur-md active:scale-[0.99]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-full border border-white/20 hover:border-white/40 text-[#f0f6f0] hover:text-white font-medium text-sm sm:text-base tracking-wide transition-all duration-200 bg-white/10 hover:bg-white/15 backdrop-blur-xs sm:backdrop-blur-md active:scale-[0.99]"
           >
             <MapPin className="w-4 h-4 text-[#e8a97a]" />
             <span>{h.directionsCta}</span>
@@ -174,6 +187,7 @@ export default function Hero() {
                 alt="Yukarı kaydır"
                 width={34}
                 height={42}
+                priority
                 className="w-7.5 h-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
               />
             </div>

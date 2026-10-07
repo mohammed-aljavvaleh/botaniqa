@@ -20,7 +20,7 @@ export default function Logo({
   className = '',
   size,
   showText = true,
-  priority = false,
+  priority = true,
 }: LogoProps) {
   // ── Full variant (showcase card) ──────────────────────────────────
   if (variant === 'full') {
